@@ -11,7 +11,10 @@ import { AnovaService } from "@/services/AnovaService";
 import { noop, sleep } from "@/lib/utils";
 import { Button } from "@/components/Button";
 
-// TODO scanning not working after app reload, needs to be killed
+/**
+ * TODO - sometimes scanning not working after app reload, needs to be killed
+ * TODO - implement initial connection with loader, after timeout show troubleshooting instructions
+ */
 
 export default function TabTwoScreen() {
   const [device, setDevice] = useState<Device>();
