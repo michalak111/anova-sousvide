@@ -24,8 +24,7 @@ export default function TabTwoScreen() {
       timer: string;
     }>
   >({ status: "stop" });
-  const [commands, setCommands] = useState<{ id: string; key: AnovaService.CommandKey }[]>([]);
-  const commandsRef = useRef(commands);
+  const commandRef = useRef<{ id: string; key: AnovaService.CommandKey }>();
 
   async function scanForDevice() {
     console.log("init scanning");
@@ -76,12 +75,8 @@ export default function TabTwoScreen() {
       const id = Date.now().toString();
       await characteristic?.writeWithResponse(encode(value), id);
       console.log("command", id, key, value);
-      setCommands((commands) => {
-        const queue = [{ id, key }, ...commands];
-        commandsRef.current = queue;
-        return queue;
-      });
-
+      commandRef.current = { id, key };
+      return await sleep();
       // await new Promise<void>((resolve) => {
       //   const subscription = characteristic?.monitor((device, characteristic) => {
       //     console.log("command monitor", id, characteristic?.value && decode(characteristic.value));
@@ -147,11 +142,8 @@ export default function TabTwoScreen() {
       const interval = setInterval(async () => {
         if (characteristic) {
           await sendCommand("read_status", AnovaService.commands["read_status"]());
-          await sleep();
           await sendCommand("read_temp", AnovaService.commands["read_temp"]());
-          await sleep();
           await sendCommand("read_target_temp", AnovaService.commands["read_target_temp"]());
-          await sleep();
           await sendCommand("read_timer", AnovaService.commands["read_timer"]());
         }
       }, 10 * 1000);
@@ -173,10 +165,9 @@ export default function TabTwoScreen() {
           if (characteristic?.value) {
             const decodedVal = decode(characteristic.value);
             console.log("monitor value", decodedVal, characteristic);
-            const [command, ...queuedCommands] = commandsRef.current;
+            const command = commandRef.current || { key: "" };
 
-            setCommands(queuedCommands);
-            commandsRef.current = queuedCommands; // todo refactor
+            commandRef.current = undefined;
 
             switch (command.key) {
               case "read_temp": {
@@ -207,7 +198,7 @@ export default function TabTwoScreen() {
         subscription?.remove();
       };
     },
-    [characteristic, commandsRef],
+    [characteristic, commandRef],
   );
 
   return (
@@ -225,7 +216,7 @@ export default function TabTwoScreen() {
               <Button
                 title={"Set temp"}
                 onPress={async () => {
-                  await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](66));
+                  await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](20));
                 }}
               />
               <ThemedView style={{ width: 10 }} />
@@ -265,9 +256,7 @@ export default function TabTwoScreen() {
                 title={"Start"}
                 onPress={async () => {
                   await sendCommand("start_time", AnovaService.commands["start_time"]());
-                  await sleep();
                   await sendCommand("start", AnovaService.commands["start"]());
-                  await sleep();
                   await sendCommand("read_status", AnovaService.commands["read_status"]());
                 }}
               />
@@ -276,9 +265,7 @@ export default function TabTwoScreen() {
                 title={"Stop"}
                 onPress={async () => {
                   await sendCommand("stop_time", AnovaService.commands["stop_time"]());
-                  await sleep();
                   await sendCommand("stop", AnovaService.commands["stop"]());
-                  await sleep();
                   await sendCommand("read_status", AnovaService.commands["read_status"]());
                 }}
               />
