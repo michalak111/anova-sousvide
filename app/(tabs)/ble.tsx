@@ -14,6 +14,7 @@ import { Button } from "@/components/Button";
 /**
  * TODO - sometimes scanning not working after app reload, needs to be killed
  * TODO - implement initial connection with loader, after timeout show troubleshooting instructions
+ * TODO - update timer input from events
  */
 
 export default function TabTwoScreen() {
@@ -28,6 +29,9 @@ export default function TabTwoScreen() {
     }>
   >({ status: "stop" });
   const commandRef = useRef<{ id: string; key: AnovaService.CommandKey }>();
+
+  const [inputTemp, setInputTemp] = useState<string>();
+  const [inputTime, setInputTime] = useState<string>();
 
   async function scanForDevice() {
     console.log("init scanning");
@@ -75,11 +79,11 @@ export default function TabTwoScreen() {
 
   async function sendCommand(key: AnovaService.CommandKey, value: string) {
     try {
+      await sleep();
       const id = Date.now().toString();
       await characteristic?.writeWithResponse(encode(value), id);
       console.log("command", id, key, value);
       commandRef.current = { id, key };
-      return await sleep();
       // await new Promise<void>((resolve) => {
       //   const subscription = characteristic?.monitor((device, characteristic) => {
       //     console.log("command monitor", id, characteristic?.value && decode(characteristic.value));
@@ -184,6 +188,9 @@ export default function TabTwoScreen() {
               case "set_target_temp":
               case "read_target_temp": {
                 setDetails((details) => ({ ...details, targetTemperature: decodedVal }));
+                if (!inputTemp) {
+                  setInputTemp(decodedVal);
+                }
                 break;
               }
               case "read_status":
@@ -217,13 +224,15 @@ export default function TabTwoScreen() {
 
             <ThemedView style={{ marginTop: 20, flexDirection: "row", flexWrap: "wrap" }}>
               <Button
+                disabled={!inputTemp}
                 title={"Set temp"}
                 onPress={async () => {
-                  await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](20));
+                  await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](Number(inputTemp)));
                 }}
               />
               <ThemedView style={{ width: 10 }} />
               <TextInput
+                value={inputTemp}
                 style={{
                   borderColor: "#2095f3",
                   borderWidth: 1,
@@ -231,6 +240,24 @@ export default function TabTwoScreen() {
                   flex: 1,
                   height: 48,
                   padding: 8,
+                  color: "white",
+                }}
+                inputMode={"decimal"}
+                maxLength={4}
+                onBlur={(e) => {
+                  setInputTemp((text) => {
+                    if (Number(text) < 5) {
+                      return String(5);
+                    }
+
+                    if (Number(text) > 99.9) {
+                      return String(99.9);
+                    }
+                    return text;
+                  });
+                }}
+                onChangeText={(val) => {
+                  setInputTemp(val);
                 }}
               />
             </ThemedView>
@@ -238,10 +265,11 @@ export default function TabTwoScreen() {
               <Button
                 title={"Set time"}
                 onPress={async () => {
-                  await sendCommand("set_timer", AnovaService.commands["set_timer"](27));
+                  await sendCommand("set_timer", AnovaService.commands["set_timer"](Number(inputTime)));
                 }}
               />
               <TextInput
+                value={inputTime}
                 style={{
                   borderColor: "#2095f3",
                   borderWidth: 1,
@@ -249,6 +277,27 @@ export default function TabTwoScreen() {
                   flex: 1,
                   height: 48,
                   padding: 8,
+                  color: "white",
+                }}
+                inputMode={"numeric"}
+                maxLength={4}
+                onBlur={() => {
+                  setInputTime((text) => {
+                    if (Number(text) < 0) {
+                      return String(0);
+                    }
+
+                    if (Number(text) > 6000) {
+                      return String(6000);
+                    }
+                    return text;
+                  });
+                }}
+                onChangeText={(val) => {
+                  if (details.status && ["running", "start"].includes(details.status)) {
+                    return;
+                  }
+                  setInputTime(val);
                 }}
               />
             </ThemedView>

@@ -7,7 +7,12 @@ type ButtonProps = ComponentProps<typeof Pressable> & { title: string; style?: S
 export const Button = ({ title, style, disabled, ...rest }: ButtonProps) => {
   return (
     <Pressable
-      style={[styles.button, disabled && { opacity: 0.7, backgroundColor: "gray" }, style]}
+      style={({ pressed }) => [
+        styles.button,
+        pressed && { opacity: 0.7 },
+        disabled && { opacity: 0.7, backgroundColor: "gray" },
+        style,
+      ]}
       disabled={disabled}
       {...rest}
     >
