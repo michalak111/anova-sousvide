@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet, Button } from "react-native";
+import { StyleSheet, TextInput } from "react-native";
 
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { Characteristic, Device, Subscription } from "react-native-ble-plx";
 import { AnovaService } from "@/services/AnovaService";
 import { noop, sleep } from "@/lib/utils";
-import CommandKey = AnovaService.CommandKey;
+import { Button } from "@/components/Button";
 
 // TODO scanning not working after app reload, needs to be killed
 
@@ -17,8 +17,13 @@ export default function TabTwoScreen() {
   const [device, setDevice] = useState<Device>();
   const [characteristic, setCharacteristic] = useState<Characteristic>();
   const [details, setDetails] = useState<
-    Partial<{ temperature: string; targetTemperature: string; status: "idle" | "start" | "stop" }>
-  >({});
+    Partial<{
+      temperature: string;
+      targetTemperature: string;
+      status: "start" | "stop" | "stopped" | "running";
+      timer: string;
+    }>
+  >({ status: "stop" });
   const [commands, setCommands] = useState<{ id: string; key: AnovaService.CommandKey }[]>([]);
   const commandsRef = useRef(commands);
 
@@ -68,14 +73,22 @@ export default function TabTwoScreen() {
 
   async function sendCommand(key: AnovaService.CommandKey, value: string) {
     try {
-      const id = Math.random().toString();
-      console.log("command", characteristic, device, id);
+      const id = Date.now().toString();
       await characteristic?.writeWithResponse(encode(value), id);
+      console.log("command", id, key, value);
       setCommands((commands) => {
         const queue = [{ id, key }, ...commands];
         commandsRef.current = queue;
         return queue;
       });
+
+      // await new Promise<void>((resolve) => {
+      //   const subscription = characteristic?.monitor((device, characteristic) => {
+      //     console.log("command monitor", id, characteristic?.value && decode(characteristic.value));
+      //     subscription?.remove();
+      //     resolve();
+      //   }, id);
+      // });
     } catch (e) {
       console.log("command err", e);
     }
@@ -130,12 +143,33 @@ export default function TabTwoScreen() {
   );
 
   useEffect(
+    function monitorStatus() {
+      const interval = setInterval(async () => {
+        if (characteristic) {
+          await sendCommand("read_status", AnovaService.commands["read_status"]());
+          await sleep();
+          await sendCommand("read_temp", AnovaService.commands["read_temp"]());
+          await sleep();
+          await sendCommand("read_target_temp", AnovaService.commands["read_target_temp"]());
+          await sleep();
+          await sendCommand("read_timer", AnovaService.commands["read_timer"]());
+        }
+      }, 10 * 1000);
+
+      return () => {
+        clearInterval(interval);
+      };
+    },
+    [characteristic],
+  );
+
+  useEffect(
     function monitorCharacteristics() {
       let subscription: Subscription | null;
       if (characteristic) {
         console.log("characteristic monitoring");
-        subscription = characteristic.monitor((error, characteristic) => {
-          console.log("monitor log", error, characteristic);
+        subscription = characteristic.monitor((error, characteristic, ...rest) => {
+          console.log("monitor log", error, characteristic, ...rest);
           if (characteristic?.value) {
             const decodedVal = decode(characteristic.value);
             console.log("monitor value", decodedVal, characteristic);
@@ -149,11 +183,16 @@ export default function TabTwoScreen() {
                 setDetails((details) => ({ ...details, temperature: decodedVal }));
                 break;
               }
+              case "read_timer": {
+                setDetails((details) => ({ ...details, timer: decodedVal }));
+                break;
+              }
               case "set_target_temp":
               case "read_target_temp": {
                 setDetails((details) => ({ ...details, targetTemperature: decodedVal }));
                 break;
               }
+              case "read_status":
               case "start":
               case "stop": {
                 setDetails((details) => ({ ...details, status: decodedVal as "start" | "stop" }));
@@ -177,59 +216,73 @@ export default function TabTwoScreen() {
       headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}
     >
       <ThemedView>
-        <ThemedText>Manage device</ThemedText>
-        <ThemedView style={{ marginTop: 20 }}>
-          <Button title={"Connect"} onPress={() => {}} />
-        </ThemedView>
-
-        <ThemedView style={{ marginTop: 20 }}>
-          <Button
-            title={"Log"}
-            onPress={async () => {
-              console.log(await BLEService.getDevices());
-            }}
-          />
-        </ThemedView>
-        <ThemedView style={{ marginTop: 20 }}>
-          <Button
-            title={"Read temp"}
-            onPress={async () => {
-              await sendCommand("read_temp", AnovaService.commands["read_temp"]());
-              await sleep(1000);
-              await sendCommand("read_target_temp", AnovaService.commands["read_target_temp"]());
-            }}
-          />
-        </ThemedView>
-        <ThemedView style={{ marginTop: 20 }}>
-          <Button
-            title={"Set temp"}
-            onPress={async () => {
-              await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](55));
-            }}
-          />
-        </ThemedView>
-
-        <ThemedView style={{ marginTop: 20 }}>
-          <Button
-            disabled={details.status === "start"}
-            title={"Start"}
-            onPress={async () => {
-              await sendCommand("start", AnovaService.commands["start"]());
-            }}
-          />
-          <Button
-            disabled={details.status === "stop"}
-            title={"Stop"}
-            onPress={async () => {
-              await sendCommand("start", AnovaService.commands["stop"]());
-            }}
-          />
-        </ThemedView>
         {device ? (
           <ThemedView style={{ marginTop: 20 }}>
             <ThemedText>Device name: {device?.name}</ThemedText>
-            <ThemedText>Temperature: {details?.temperature}</ThemedText>
-            <ThemedText>Target temperature: {details?.targetTemperature}</ThemedText>
+            <ThemedText>{details ? JSON.stringify(details, null, 2) : null}</ThemedText>
+
+            <ThemedView style={{ marginTop: 20, flexDirection: "row", flexWrap: "wrap" }}>
+              <Button
+                title={"Set temp"}
+                onPress={async () => {
+                  await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](66));
+                }}
+              />
+              <ThemedView style={{ width: 10 }} />
+              <TextInput
+                style={{
+                  borderColor: "#2095f3",
+                  borderWidth: 1,
+                  borderRadius: 12,
+                  flex: 1,
+                  height: 48,
+                  padding: 8,
+                }}
+              />
+            </ThemedView>
+            <ThemedView style={{ marginTop: 20, flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
+              <Button
+                title={"Set time"}
+                onPress={async () => {
+                  await sendCommand("set_timer", AnovaService.commands["set_timer"](27));
+                }}
+              />
+              <TextInput
+                style={{
+                  borderColor: "#2095f3",
+                  borderWidth: 1,
+                  borderRadius: 12,
+                  flex: 1,
+                  height: 48,
+                  padding: 8,
+                }}
+              />
+            </ThemedView>
+
+            <ThemedView style={{ marginTop: 20, flexDirection: "row", gap: 10 }}>
+              <Button
+                disabled={details.status ? ["start", "running"].includes(details.status) : false}
+                title={"Start"}
+                onPress={async () => {
+                  await sendCommand("start_time", AnovaService.commands["start_time"]());
+                  await sleep();
+                  await sendCommand("start", AnovaService.commands["start"]());
+                  await sleep();
+                  await sendCommand("read_status", AnovaService.commands["read_status"]());
+                }}
+              />
+              <Button
+                disabled={details.status ? ["stop", "stopped"].includes(details.status) : false}
+                title={"Stop"}
+                onPress={async () => {
+                  await sendCommand("stop_time", AnovaService.commands["stop_time"]());
+                  await sleep();
+                  await sendCommand("stop", AnovaService.commands["stop"]());
+                  await sleep();
+                  await sendCommand("read_status", AnovaService.commands["read_status"]());
+                }}
+              />
+            </ThemedView>
           </ThemedView>
         ) : null}
       </ThemedView>

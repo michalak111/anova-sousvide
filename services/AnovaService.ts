@@ -5,13 +5,18 @@ const DEVICE_SERVICE_UUID = "ffe0";
 const DEVICE_CHARACTERISTIC_UUID = "ffe1";
 
 const commands = {
+  read_status: () => "status",
   read_temp: () => "read temp",
   read_target_temp: () => "read set temp",
+  read_timer: () => "read timer",
 
   set_target_temp: (val: number) => `set temp ${val}C`,
+  set_timer: (val: number) => `set timer ${val}`,
 
   start: () => `start`,
   stop: () => `stop`,
+  start_time: () => `start time`,
+  stop_time: () => `stop time`,
 } as const;
 
 const validateDeviceName = (device: Device) => {
