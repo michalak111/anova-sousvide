@@ -11,6 +11,9 @@ import { AnovaService } from "@/services/AnovaService";
 import { noop, sleep } from "@/lib/utils";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
+import { FontAwesome5, FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
+import { ButtonIcon } from "@/components/ButtonIcon";
+import { DisplayTemperature } from "@/components/DisplayTemperature";
 
 /**
  * TODO - sometimes scanning not working after app reload, needs to be killed
@@ -28,7 +31,7 @@ export default function TabTwoScreen() {
       status: "start" | "stop" | "stopped" | "running";
       timer: string;
     }>
-  >({ status: "stop" });
+  >({});
   const commandRef = useRef<{ id: string; key: AnovaService.CommandKey }>();
 
   const [inputTemp, setInputTemp] = useState<string>();
@@ -215,98 +218,125 @@ export default function TabTwoScreen() {
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}
+      headerImage={<Ionicons size={310} name="fast-food" style={styles.headerImage} />}
     >
       <ThemedView>
-        {device ? (
-          <ThemedView style={{ marginTop: 20 }}>
-            <ThemedText>Device name: {device?.name}</ThemedText>
-            <ThemedText>{details ? JSON.stringify(details, null, 2) : null}</ThemedText>
+        {Object.keys(details).length === 4 ? (
+          <>
+            {details.temperature && details.targetTemperature ? (
+              <DisplayTemperature current={details.temperature} target={details.targetTemperature} />
+            ) : null}
+            {details.timer ? (
+              <ThemedView style={{ marginTop: 30, justifyContent: "center", alignItems: "center" }}>
+                <ThemedText style={{ fontSize: 48, lineHeight: 50, fontWeight: 600 }}>01h 47m</ThemedText>
+                <ThemedText>Time Left</ThemedText>
+              </ThemedView>
+            ) : null}
+            {details.status ? (
+              <ThemedView
+                style={{ marginTop: 20, flexDirection: "row", gap: 30, alignItems: "center", justifyContent: "center" }}
+              >
+                <ButtonIcon>
+                  <FontAwesome6 name="temperature-half" size={24} color="black" />
+                </ButtonIcon>
+                {["stop", "stopped"].includes(details.status ?? "") ? (
+                  <ButtonIcon
+                    size={80}
+                    onPress={async () => {
+                      await sendCommand("start_time", AnovaService.commands["start_time"]());
+                      await sendCommand("start", AnovaService.commands["start"]());
+                      await sendCommand("read_status", AnovaService.commands["read_status"]());
+                    }}
+                  >
+                    <FontAwesome5 name="play" size={24} color="black" />
+                  </ButtonIcon>
+                ) : (
+                  <ButtonIcon
+                    size={80}
+                    onPress={async () => {
+                      await sendCommand("stop_time", AnovaService.commands["stop_time"]());
+                      await sendCommand("stop", AnovaService.commands["stop"]());
+                      await sendCommand("read_status", AnovaService.commands["read_status"]());
+                    }}
+                  >
+                    <FontAwesome5 name="stop" size={24} color="black" />
+                  </ButtonIcon>
+                )}
+                <ButtonIcon>
+                  <FontAwesome6 name="clock" size={24} color="black" />
+                </ButtonIcon>
+              </ThemedView>
+            ) : null}
 
-            <ThemedView style={{ marginTop: 20, flexDirection: "row", flexWrap: "wrap" }}>
-              <Button
-                disabled={!inputTemp}
-                title={"Set temp"}
-                onPress={async () => {
-                  await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](Number(inputTemp)));
-                }}
-              />
-              <ThemedView style={{ width: 10 }} />
-              <Input
-                value={inputTemp}
-                inputMode={"decimal"}
-                maxLength={4}
-                onBlur={(e) => {
-                  setInputTemp((text) => {
-                    if (Number(text) < 5) {
-                      return String(5);
-                    }
+            <>
+              {/*<ThemedView style={{ marginTop: 20, flexDirection: "row", flexWrap: "wrap" }}>*/}
+              {/*  <Button*/}
+              {/*    disabled={!inputTemp}*/}
+              {/*    onPress={async () => {*/}
+              {/*      await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](Number(inputTemp)));*/}
+              {/*    }}*/}
+              {/*  >*/}
+              {/*    Set temp*/}
+              {/*  </Button>*/}
+              {/*  <ThemedView style={{ width: 10 }} />*/}
+              {/*  <Input*/}
+              {/*    value={inputTemp}*/}
+              {/*    inputMode={"decimal"}*/}
+              {/*    maxLength={4}*/}
+              {/*    onBlur={(e) => {*/}
+              {/*      setInputTemp((text) => {*/}
+              {/*        if (Number(text) < 5) {*/}
+              {/*          return String(5);*/}
+              {/*        }*/}
 
-                    if (Number(text) > 99.9) {
-                      return String(99.9);
-                    }
-                    return text;
-                  });
-                }}
-                onChangeText={(val) => {
-                  setInputTemp(val);
-                }}
-              />
-            </ThemedView>
-            <ThemedView style={{ marginTop: 20, flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-              <Button
-                title={"Set time"}
-                onPress={async () => {
-                  await sendCommand("set_timer", AnovaService.commands["set_timer"](Number(inputTime)));
-                }}
-              />
-              <Input
-                value={inputTime}
-                inputMode={"numeric"}
-                maxLength={4}
-                onBlur={() => {
-                  setInputTime((text) => {
-                    if (Number(text) < 0) {
-                      return String(0);
-                    }
+              {/*        if (Number(text) > 99.9) {*/}
+              {/*          return String(99.9);*/}
+              {/*        }*/}
+              {/*        return text;*/}
+              {/*      });*/}
+              {/*    }}*/}
+              {/*    onChangeText={(val) => {*/}
+              {/*      setInputTemp(val);*/}
+              {/*    }}*/}
+              {/*  />*/}
+              {/*</ThemedView>*/}
+              {/*<ThemedView style={{ marginTop: 20, flexDirection: "row", flexWrap: "wrap", gap: 10 }}>*/}
+              {/*  <Button*/}
+              {/*    onPress={async () => {*/}
+              {/*      await sendCommand("set_timer", AnovaService.commands["set_timer"](Number(inputTime)));*/}
+              {/*    }}*/}
+              {/*  >*/}
+              {/*    Set time*/}
+              {/*  </Button>*/}
+              {/*  <Input*/}
+              {/*    value={inputTime}*/}
+              {/*    inputMode={"numeric"}*/}
+              {/*    maxLength={4}*/}
+              {/*    onBlur={() => {*/}
+              {/*      setInputTime((text) => {*/}
+              {/*        if (Number(text) < 0) {*/}
+              {/*          return String(0);*/}
+              {/*        }*/}
 
-                    if (Number(text) > 6000) {
-                      return String(6000);
-                    }
-                    return text;
-                  });
-                }}
-                onChangeText={(val) => {
-                  if (details.status && ["running", "start"].includes(details.status)) {
-                    return;
-                  }
-                  setInputTime(val);
-                }}
-              />
-            </ThemedView>
-
-            <ThemedView style={{ marginTop: 20, flexDirection: "row", gap: 10 }}>
-              <Button
-                disabled={details.status ? ["start", "running"].includes(details.status) : false}
-                title={"Start"}
-                onPress={async () => {
-                  await sendCommand("start_time", AnovaService.commands["start_time"]());
-                  await sendCommand("start", AnovaService.commands["start"]());
-                  await sendCommand("read_status", AnovaService.commands["read_status"]());
-                }}
-              />
-              <Button
-                disabled={details.status ? ["stop", "stopped"].includes(details.status) : false}
-                title={"Stop"}
-                onPress={async () => {
-                  await sendCommand("stop_time", AnovaService.commands["stop_time"]());
-                  await sendCommand("stop", AnovaService.commands["stop"]());
-                  await sendCommand("read_status", AnovaService.commands["read_status"]());
-                }}
-              />
-            </ThemedView>
-          </ThemedView>
-        ) : null}
+              {/*        if (Number(text) > 6000) {*/}
+              {/*          return String(6000);*/}
+              {/*        }*/}
+              {/*        return text;*/}
+              {/*      });*/}
+              {/*    }}*/}
+              {/*    onChangeText={(val) => {*/}
+              {/*      if (details.status && ["running", "start"].includes(details.status)) {*/}
+              {/*        return;*/}
+              {/*      }*/}
+              {/*      setInputTime(val);*/}
+              {/*    }}*/}
+              {/*  />*/}
+              {/*</ThemedView>*/}
+            </>
+          </>
+        ) : (
+          <ThemedText>Loading</ThemedText>
+        )}
       </ThemedView>
     </ParallaxScrollView>
   );

@@ -3,9 +3,9 @@ import { ThemedText } from "@/components/ThemedText";
 import { Pressable, StyleProp, ViewStyle, StyleSheet } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
-type Props = ComponentProps<typeof Pressable> & { title: string; style?: StyleProp<ViewStyle> };
+type Props = ComponentProps<typeof Pressable> & { style?: StyleProp<ViewStyle>; children: React.ReactNode };
 
-export const Button = ({ title, style, disabled, ...rest }: Props) => {
+export const Button = ({ style, disabled, children, ...rest }: Props) => {
   const color = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "main");
   return (
@@ -20,7 +20,7 @@ export const Button = ({ title, style, disabled, ...rest }: Props) => {
       disabled={disabled}
       {...rest}
     >
-      <ThemedText style={[styles.text, { color }]}>{title}</ThemedText>
+      <ThemedText style={[styles.text, { color }]}>{children}</ThemedText>
     </Pressable>
   );
 };
