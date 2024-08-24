@@ -11,6 +11,14 @@ import { BLEService } from "@/services/BLEService";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+const Config = {
+  mockBLEService: true,
+};
+
+if (Config.mockBLEService) {
+  require("../services/mocks/MockBLEService");
+}
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({

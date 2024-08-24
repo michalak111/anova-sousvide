@@ -1,16 +1,16 @@
 import {
+  type Base64,
   BleError,
   BleErrorCode,
   BleManager,
+  type Characteristic,
   Device,
-  State as BluetoothState,
-  LogLevel,
   type DeviceId,
+  LogLevel,
+  State as BluetoothState,
+  type Subscription,
   type TransactionId,
   type UUID,
-  type Characteristic,
-  type Base64,
-  type Subscription,
 } from "react-native-ble-plx";
 import { PermissionsAndroid, Platform } from "react-native";
 

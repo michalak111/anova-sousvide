@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet, TextInput } from "react-native";
+import { StyleSheet } from "react-native";
 
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
@@ -10,6 +10,7 @@ import { Characteristic, Device, Subscription } from "react-native-ble-plx";
 import { AnovaService } from "@/services/AnovaService";
 import { noop, sleep } from "@/lib/utils";
 import { Button } from "@/components/Button";
+import { Input } from "@/components/Input";
 
 /**
  * TODO - sometimes scanning not working after app reload, needs to be killed
@@ -231,17 +232,8 @@ export default function TabTwoScreen() {
                 }}
               />
               <ThemedView style={{ width: 10 }} />
-              <TextInput
+              <Input
                 value={inputTemp}
-                style={{
-                  borderColor: "#2095f3",
-                  borderWidth: 1,
-                  borderRadius: 12,
-                  flex: 1,
-                  height: 48,
-                  padding: 8,
-                  color: "white",
-                }}
                 inputMode={"decimal"}
                 maxLength={4}
                 onBlur={(e) => {
@@ -268,17 +260,8 @@ export default function TabTwoScreen() {
                   await sendCommand("set_timer", AnovaService.commands["set_timer"](Number(inputTime)));
                 }}
               />
-              <TextInput
+              <Input
                 value={inputTime}
-                style={{
-                  borderColor: "#2095f3",
-                  borderWidth: 1,
-                  borderRadius: 12,
-                  flex: 1,
-                  height: 48,
-                  padding: 8,
-                  color: "white",
-                }}
                 inputMode={"numeric"}
                 maxLength={4}
                 onBlur={() => {

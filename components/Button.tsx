@@ -1,14 +1,18 @@
 import React, { ComponentProps } from "react";
 import { ThemedText } from "@/components/ThemedText";
 import { Pressable, StyleProp, ViewStyle, StyleSheet } from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
-type ButtonProps = ComponentProps<typeof Pressable> & { title: string; style?: StyleProp<ViewStyle> };
+type Props = ComponentProps<typeof Pressable> & { title: string; style?: StyleProp<ViewStyle> };
 
-export const Button = ({ title, style, disabled, ...rest }: ButtonProps) => {
+export const Button = ({ title, style, disabled, ...rest }: Props) => {
+  const color = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "main");
   return (
     <Pressable
       style={({ pressed }) => [
         styles.button,
+        { backgroundColor },
         pressed && { opacity: 0.7 },
         disabled && { opacity: 0.7, backgroundColor: "gray" },
         style,
@@ -16,14 +20,13 @@ export const Button = ({ title, style, disabled, ...rest }: ButtonProps) => {
       disabled={disabled}
       {...rest}
     >
-      <ThemedText style={styles.text}>{title}</ThemedText>
+      <ThemedText style={[styles.text, { color }]}>{title}</ThemedText>
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: "#2095f3",
     padding: 4,
     alignItems: "center",
     justifyContent: "center",
