@@ -8,7 +8,7 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { Button } from "@/components/Button";
 import { BottomDrawer } from "@/components/BottomDrawer";
 
-export default function Index() {
+export default function IndexTab() {
   const [opened, setOpened] = useState(false);
 
   return (

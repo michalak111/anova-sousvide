@@ -5,7 +5,7 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { Text } from "@/components/Text";
 import { View } from "@/components/View";
 import { BLEService } from "@/services/BLEService";
-import { useEffect, useRef, useState } from "react";
+import React, { ComponentProps, useEffect, useRef, useState } from "react";
 import { Characteristic, Device, Subscription } from "react-native-ble-plx";
 import { AnovaService } from "@/services/AnovaService";
 import { noop, sleep } from "@/lib/utils";
@@ -13,6 +13,10 @@ import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
 import { ButtonIcon } from "@/components/ButtonIcon";
 import { CookingTemperature } from "@/components/CookingPanel/CookingTemperature";
 import { CookingTimer } from "@/components/CookingPanel/CookingTimer";
+import { BottomDrawer } from "@/components/BottomDrawer";
+import { Button } from "@/components/Button";
+import { FormSetTemperature } from "@/components/Form/FormSetTemperature";
+import { FormSetTimer } from "@/components/Form/FormSetTimer";
 
 /**
  * TODO - sometimes scanning not working after app reload, needs to be killed
@@ -20,21 +24,23 @@ import { CookingTimer } from "@/components/CookingPanel/CookingTimer";
  * TODO - update timer input from events
  */
 
-export default function TabTwoScreen() {
+type CookingState = {
+  temperature: string;
+  targetTemperature: string;
+  status: "start" | "stop" | "stopped" | "running";
+  timer: string;
+};
+
+export default function DeviceTab() {
   const [device, setDevice] = useState<Device>();
   const [characteristic, setCharacteristic] = useState<Characteristic>();
-  const [details, setDetails] = useState<
-    Partial<{
-      temperature: string;
-      targetTemperature: string;
-      status: "start" | "stop" | "stopped" | "running";
-      timer: string;
-    }>
-  >({});
   const commandRef = useRef<{ id: string; key: AnovaService.CommandKey }>();
+  const [state, setState] = useState<Partial<CookingState>>({});
+  const [tempModal, setTempModal] = useState(false);
+  const [timerModal, setTimerModal] = useState(false);
 
   async function scanForDevice() {
-    console.log("init scanning");
+    logger("init scanning");
     return BLEService.scanDevices(
       async (device) => {
         if (AnovaService.validateDeviceName(device)) {
@@ -49,7 +55,7 @@ export default function TabTwoScreen() {
     const device = await BLEService.connectToDevice(id);
     setDevice(device);
     AnovaService.storeDeviceId(device.id);
-    console.log("connected to device", device);
+    logger("connected to device", device);
   }
 
   async function findCharacteistic() {
@@ -69,30 +75,22 @@ export default function TabTwoScreen() {
     setCharacteristic(expectedCharacteristic);
   }
 
-  function encode(command: string) {
-    return btoa(`${command}\r`);
-  }
-
-  function decode(value: string) {
-    return atob(value).replace("\r", "");
-  }
-
   async function sendCommand(key: AnovaService.CommandKey, value: string) {
     try {
       await sleep();
       const id = Date.now().toString();
-      await characteristic?.writeWithResponse(encode(value), id);
-      console.log("command", id, key, value);
+      await characteristic?.writeWithResponse(AnovaService.encodeCmd(value), id);
+      logger("command", id, key, value);
       commandRef.current = { id, key };
       // await new Promise<void>((resolve) => {
       //   const subscription = characteristic?.monitor((device, characteristic) => {
-      //     console.log("command monitor", id, characteristic?.value && decode(characteristic.value));
+      //     logger("command monitor", id, characteristic?.value && decode(characteristic.value));
       //     subscription?.remove();
       //     resolve();
       //   }, id);
       // });
     } catch (e) {
-      console.log("command err", e);
+      logger("command err", e);
     }
   }
 
@@ -110,14 +108,14 @@ export default function TabTwoScreen() {
         const restoredDevice = AnovaService.restoreDeviceId();
         if (restoredDevice) {
           await connectToDevice(restoredDevice).catch(() => {
-            console.log("could not connect to restored device");
+            logger("could not connect to restored device");
           });
         }
       } catch (e) {
         void AnovaService.forgetDeviceId();
         await scanForDevice();
       } finally {
-        console.log("init completed");
+        logger("init completed");
       }
     })();
   }, []);
@@ -128,7 +126,7 @@ export default function TabTwoScreen() {
       if (device) {
         void findCharacteistic().catch(noop);
         subscription = BLEService.onDeviceDisconnected((error, device) => {
-          console.log("disconnected", error, device);
+          logger("disconnected", error, device);
           // device?.connect();
           BLEService.isDeviceConnected().catch(() => {
             setDevice(undefined);
@@ -172,34 +170,34 @@ export default function TabTwoScreen() {
     function monitorCharacteristics() {
       let subscription: Subscription | null;
       if (characteristic) {
-        console.log("characteristic monitoring");
+        logger("characteristic monitoring");
         subscription = characteristic.monitor((error, characteristic, ...rest) => {
-          console.log("monitor log", error, characteristic, ...rest);
+          logger("monitor logger", error, characteristic, ...rest);
           if (characteristic?.value) {
-            const decodedVal = decode(characteristic.value);
-            console.log("monitor value", decodedVal, characteristic);
+            const decodedVal = AnovaService.decodeCmd(characteristic.value);
+            logger("monitor value", decodedVal, characteristic);
             const command = commandRef.current || { key: "" };
 
             commandRef.current = undefined;
 
             switch (command.key) {
               case "read_temp": {
-                setDetails((details) => ({ ...details, temperature: decodedVal }));
+                setState((details) => ({ ...details, temperature: decodedVal }));
                 break;
               }
               case "read_timer": {
-                setDetails((details) => ({ ...details, timer: decodedVal }));
+                setState((details) => ({ ...details, timer: decodedVal }));
                 break;
               }
               case "set_target_temp":
               case "read_target_temp": {
-                setDetails((details) => ({ ...details, targetTemperature: decodedVal }));
+                setState((details) => ({ ...details, targetTemperature: decodedVal }));
                 break;
               }
               case "read_status":
               case "start":
               case "stop": {
-                setDetails((details) => ({ ...details, status: decodedVal as "start" | "stop" }));
+                setState((details) => ({ ...details, status: decodedVal as "start" | "stop" }));
                 break;
               }
             }
@@ -215,63 +213,82 @@ export default function TabTwoScreen() {
   );
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
-      headerImage={<Ionicons size={310} name="fast-food" style={styles.headerImage} />}
-    >
-      <View>
-        {Object.keys(details).length === 4 ? (
-          <>
-            {details.temperature && details.targetTemperature ? (
-              <CookingTemperature current={details.temperature} target={details.targetTemperature} />
-            ) : null}
-            {details.timer ? <CookingTimer timer={details.timer} /> : null}
-            {details.status ? (
-              <View
-                style={{ marginTop: 20, flexDirection: "row", gap: 30, alignItems: "center", justifyContent: "center" }}
-              >
-                <ButtonIcon>
-                  <FontAwesome6 name="temperature-half" size={24} color="black" />
-                </ButtonIcon>
-                {["stop", "stopped"].includes(details.status ?? "") ? (
-                  <ButtonIcon
-                    size={80}
-                    onPress={async () => {
-                      await sendCommand("start_time", AnovaService.commands["start_time"]());
-                      await sendCommand("start", AnovaService.commands["start"]());
-                      await sendCommand("read_status", AnovaService.commands["read_status"]());
-                    }}
-                  >
-                    <FontAwesome5 name="play" size={24} color="black" />
-                  </ButtonIcon>
-                ) : (
-                  <ButtonIcon
-                    size={80}
-                    onPress={async () => {
-                      await sendCommand("stop_time", AnovaService.commands["stop_time"]());
-                      await sendCommand("stop", AnovaService.commands["stop"]());
-                      await sendCommand("read_status", AnovaService.commands["read_status"]());
-                    }}
-                  >
-                    <FontAwesome5 name="stop" size={24} color="black" />
-                  </ButtonIcon>
-                )}
-                <ButtonIcon>
-                  <FontAwesome6 name="clock" size={24} color="black" />
-                </ButtonIcon>
-              </View>
-            ) : null}
-
+    <>
+      <ParallaxScrollView
+        headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
+        headerImage={<Ionicons size={310} name="fast-food" style={styles.headerImage} />}
+      >
+        <View>
+          {Object.keys(state).length === 4 ? (
             <>
-              {/*<FormSetTemperature />*/}
-              {/*<FormSetTimer />*/}
+              {state.temperature && state.targetTemperature ? (
+                <CookingTemperature current={state.temperature} target={state.targetTemperature} />
+              ) : null}
+              {state.timer ? <CookingTimer timer={state.timer} /> : null}
+              {state.status ? (
+                <View
+                  style={{
+                    marginTop: 20,
+                    flexDirection: "row",
+                    gap: 30,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ButtonIcon onPress={() => setTempModal((o) => !o)}>
+                    <FontAwesome6 name="temperature-half" size={24} color="black" />
+                  </ButtonIcon>
+                  {["stop", "stopped"].includes(state.status ?? "") ? (
+                    <ButtonIcon
+                      size={80}
+                      onPress={async () => {
+                        await sendCommand("start_time", AnovaService.commands["start_time"]());
+                        await sendCommand("start", AnovaService.commands["start"]());
+                        await sendCommand("read_status", AnovaService.commands["read_status"]());
+                      }}
+                    >
+                      <FontAwesome5 name="play" size={24} color="black" />
+                    </ButtonIcon>
+                  ) : (
+                    <ButtonIcon
+                      size={80}
+                      onPress={async () => {
+                        await sendCommand("stop_time", AnovaService.commands["stop_time"]());
+                        await sendCommand("stop", AnovaService.commands["stop"]());
+                        await sendCommand("read_status", AnovaService.commands["read_status"]());
+                      }}
+                    >
+                      <FontAwesome5 name="stop" size={24} color="black" />
+                    </ButtonIcon>
+                  )}
+                  <ButtonIcon onPress={() => setTimerModal((o) => !o)}>
+                    <FontAwesome6 name="clock" size={24} color="black" />
+                  </ButtonIcon>
+                </View>
+              ) : null}
             </>
-          </>
-        ) : (
-          <Text>Loading</Text>
-        )}
-      </View>
-    </ParallaxScrollView>
+          ) : (
+            <Text>Loading</Text>
+          )}
+        </View>
+      </ParallaxScrollView>
+      <FormModal opened={tempModal} onClose={() => setTempModal(false)}>
+        <FormSetTemperature
+          onSave={async (value) => {
+            await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](Number(value)));
+            setTempModal(false);
+          }}
+        />
+      </FormModal>
+      <FormModal opened={timerModal} onClose={() => setTimerModal(false)}>
+        <FormSetTimer
+          onSave={async (value) => {
+            await sendCommand("set_timer", AnovaService.commands["set_timer"](Number(value)));
+            setTimerModal(false);
+          }}
+        />
+      </FormModal>
+    </>
   );
 }
 
@@ -283,3 +300,22 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
 });
+
+const logger = (...args: unknown[]) => {
+  // console.logger("DEVICE::", ...args);
+};
+
+type FormModalProps = ComponentProps<typeof BottomDrawer> & {
+  onClose: () => void;
+};
+
+const FormModal = ({ children, onClose, ...rest }: FormModalProps) => {
+  return (
+    <BottomDrawer {...rest}>
+      {children}
+      <Button variant="outline" style={{ marginTop: 10 }} onPress={onClose}>
+        Cancel
+      </Button>
+    </BottomDrawer>
+  );
+};

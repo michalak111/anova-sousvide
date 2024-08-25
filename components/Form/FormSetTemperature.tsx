@@ -3,32 +3,39 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { useState } from "react";
 import { Text } from "@/components/Text";
+import { Keyboard } from "react-native";
 
 // TODO - improve validaton
 
-type Props = {
-  initialValue?: string;
+type Props<V = string> = {
+  initialValue?: V;
+  onSave: (value: V) => void;
 };
 
-export const FormSetTemperature = ({ initialValue }: Props) => {
-  const [value, setValue] = useState(initialValue);
+export const FormSetTemperature = ({ initialValue, onSave }: Props) => {
+  const [value, setValue] = useState(initialValue ?? "");
+  const validate = (val: string) => {
+    if (Number(val) < 5) {
+      return String(5);
+    }
+
+    if (Number(val) > 99.9) {
+      return String(99.9);
+    }
+    return val;
+  };
+
   return (
     <View style={{ gap: 10 }}>
       <Text type="defaultSemiBold">Cooking temperature</Text>
       <Input
         value={value}
+        placeholder="Temperature in Celcius"
         inputMode={"decimal"}
         maxLength={4}
         onBlur={(e) => {
           setValue((text) => {
-            if (Number(text) < 5) {
-              return String(5);
-            }
-
-            if (Number(text) > 99.9) {
-              return String(99.9);
-            }
-            return text;
+            return validate(text);
           });
         }}
         onChangeText={(val) => {
@@ -37,9 +44,9 @@ export const FormSetTemperature = ({ initialValue }: Props) => {
       />
 
       <Button
-        // disabled={!inputTemp}
         onPress={async () => {
-          // await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](Number(inputTemp)));
+          Keyboard.dismiss();
+          onSave(validate(value));
         }}
       >
         Save

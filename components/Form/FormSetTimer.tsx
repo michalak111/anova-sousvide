@@ -4,16 +4,29 @@ import { Input } from "@/components/Input";
 import { useState } from "react";
 import { Text } from "@/components/Text";
 import { displayCookingTime } from "@/services/AnovaService";
+import { Keyboard } from "react-native";
 
 // TODO - implement input mask, so user types time in hh:mm format
 // TODO - improve validaton
 
-type Props = {
-  initialValue?: string;
+type Props<V = string> = {
+  initialValue?: V;
+  onSave: (value: V) => void;
 };
 
-export const FormSetTimer = ({ initialValue }: Props) => {
-  const [value, setValue] = useState(initialValue);
+export const FormSetTimer = ({ initialValue, onSave }: Props) => {
+  const [value, setValue] = useState(initialValue ?? "");
+  const validate = (val: string) => {
+    if (Number(val) < 0) {
+      return String(0);
+    }
+
+    if (Number(val) > 6000) {
+      return String(6000);
+    }
+    return val;
+  };
+
   return (
     <View style={{ gap: 10 }}>
       <Text type="defaultSemiBold">Cooking time</Text>
@@ -24,14 +37,7 @@ export const FormSetTimer = ({ initialValue }: Props) => {
           maxLength={4}
           onBlur={() => {
             setValue((text) => {
-              if (Number(text) < 0) {
-                return String(0);
-              }
-
-              if (Number(text) > 6000) {
-                return String(6000);
-              }
-              return text;
+              return validate(text);
             });
           }}
           onChangeText={(val) => {
@@ -44,8 +50,9 @@ export const FormSetTimer = ({ initialValue }: Props) => {
       </View>
       <View>
         <Button
-          onPress={async () => {
-            // await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](Number(inputTemp)));
+          onPress={() => {
+            Keyboard.dismiss();
+            onSave(validate(value));
           }}
         >
           Save

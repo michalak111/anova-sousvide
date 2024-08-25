@@ -31,6 +31,14 @@ const findCharacteristics = (characteristics: Characteristic[]) => {
   return characteristics.find((characteristic) => characteristic.uuid.includes(DEVICE_CHARACTERISTIC_UUID));
 };
 
+const encodeCmd = (command: string) => {
+  return btoa(`${command}\r`);
+};
+
+const decodeCmd = (value: string) => {
+  return atob(value).replace("\r", "");
+};
+
 const storeDeviceId = (id: string) => SecureStore.setItem("STORE_ANOVA_DEVICE_ID", id);
 
 const restoreDeviceId = () => SecureStore.getItem("STORE_ANOVA_DEVICE_ID");
@@ -60,6 +68,8 @@ export const AnovaService = {
   validateDeviceName,
   findService,
   findCharacteristics,
+  encodeCmd,
+  decodeCmd,
   storeDeviceId,
   restoreDeviceId,
   forgetDeviceId,
