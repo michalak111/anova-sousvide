@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { Text } from "@/components/Text";
+import { View } from "@/components/View";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React from "react";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -12,9 +12,9 @@ export default function Index() {
       headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
       headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}
     >
-      <ThemedView>
-        <ThemedText>Home</ThemedText>
-      </ThemedView>
+      <View>
+        <Text>Home</Text>
+      </View>
     </ParallaxScrollView>
   );
 }

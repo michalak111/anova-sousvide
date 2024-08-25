@@ -2,18 +2,17 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { StyleSheet } from "react-native";
 
 import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { Text } from "@/components/Text";
+import { View } from "@/components/View";
 import { BLEService } from "@/services/BLEService";
 import { useEffect, useRef, useState } from "react";
 import { Characteristic, Device, Subscription } from "react-native-ble-plx";
 import { AnovaService } from "@/services/AnovaService";
 import { noop, sleep } from "@/lib/utils";
-import { Button } from "@/components/Button";
-import { Input } from "@/components/Input";
-import { FontAwesome5, FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
 import { ButtonIcon } from "@/components/ButtonIcon";
-import { DisplayTemperature } from "@/components/DisplayTemperature";
+import { CookingTemperature } from "@/components/CookingPanel/CookingTemperature";
+import { CookingTimer } from "@/components/CookingPanel/CookingTimer";
 
 /**
  * TODO - sometimes scanning not working after app reload, needs to be killed
@@ -33,9 +32,6 @@ export default function TabTwoScreen() {
     }>
   >({});
   const commandRef = useRef<{ id: string; key: AnovaService.CommandKey }>();
-
-  const [inputTemp, setInputTemp] = useState<string>();
-  const [inputTime, setInputTime] = useState<string>();
 
   async function scanForDevice() {
     console.log("init scanning");
@@ -150,17 +146,23 @@ export default function TabTwoScreen() {
 
   useEffect(
     function monitorStatus() {
-      const interval = setInterval(async () => {
-        if (characteristic) {
-          await sendCommand("read_status", AnovaService.commands["read_status"]());
-          await sendCommand("read_temp", AnovaService.commands["read_temp"]());
-          await sendCommand("read_target_temp", AnovaService.commands["read_target_temp"]());
-          await sendCommand("read_timer", AnovaService.commands["read_timer"]());
-        }
-      }, 10 * 1000);
+      const fetchDeviceData = async () => {
+        await sendCommand("read_status", AnovaService.commands["read_status"]());
+        await sendCommand("read_temp", AnovaService.commands["read_temp"]());
+        await sendCommand("read_target_temp", AnovaService.commands["read_target_temp"]());
+        await sendCommand("read_timer", AnovaService.commands["read_timer"]());
+      };
+      let interval: NodeJS.Timeout | null;
 
+      if (characteristic) {
+        interval = setInterval(async () => {
+          void fetchDeviceData();
+        }, 10 * 1000);
+
+        void fetchDeviceData();
+      }
       return () => {
-        clearInterval(interval);
+        interval && clearInterval(interval);
       };
     },
     [characteristic],
@@ -192,9 +194,6 @@ export default function TabTwoScreen() {
               case "set_target_temp":
               case "read_target_temp": {
                 setDetails((details) => ({ ...details, targetTemperature: decodedVal }));
-                if (!inputTemp) {
-                  setInputTemp(decodedVal);
-                }
                 break;
               }
               case "read_status":
@@ -220,20 +219,15 @@ export default function TabTwoScreen() {
       headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
       headerImage={<Ionicons size={310} name="fast-food" style={styles.headerImage} />}
     >
-      <ThemedView>
+      <View>
         {Object.keys(details).length === 4 ? (
           <>
             {details.temperature && details.targetTemperature ? (
-              <DisplayTemperature current={details.temperature} target={details.targetTemperature} />
+              <CookingTemperature current={details.temperature} target={details.targetTemperature} />
             ) : null}
-            {details.timer ? (
-              <ThemedView style={{ marginTop: 30, justifyContent: "center", alignItems: "center" }}>
-                <ThemedText style={{ fontSize: 48, lineHeight: 50, fontWeight: 600 }}>01h 47m</ThemedText>
-                <ThemedText>Time Left</ThemedText>
-              </ThemedView>
-            ) : null}
+            {details.timer ? <CookingTimer timer={details.timer} /> : null}
             {details.status ? (
-              <ThemedView
+              <View
                 style={{ marginTop: 20, flexDirection: "row", gap: 30, alignItems: "center", justifyContent: "center" }}
               >
                 <ButtonIcon>
@@ -265,79 +259,18 @@ export default function TabTwoScreen() {
                 <ButtonIcon>
                   <FontAwesome6 name="clock" size={24} color="black" />
                 </ButtonIcon>
-              </ThemedView>
+              </View>
             ) : null}
 
             <>
-              {/*<ThemedView style={{ marginTop: 20, flexDirection: "row", flexWrap: "wrap" }}>*/}
-              {/*  <Button*/}
-              {/*    disabled={!inputTemp}*/}
-              {/*    onPress={async () => {*/}
-              {/*      await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](Number(inputTemp)));*/}
-              {/*    }}*/}
-              {/*  >*/}
-              {/*    Set temp*/}
-              {/*  </Button>*/}
-              {/*  <ThemedView style={{ width: 10 }} />*/}
-              {/*  <Input*/}
-              {/*    value={inputTemp}*/}
-              {/*    inputMode={"decimal"}*/}
-              {/*    maxLength={4}*/}
-              {/*    onBlur={(e) => {*/}
-              {/*      setInputTemp((text) => {*/}
-              {/*        if (Number(text) < 5) {*/}
-              {/*          return String(5);*/}
-              {/*        }*/}
-
-              {/*        if (Number(text) > 99.9) {*/}
-              {/*          return String(99.9);*/}
-              {/*        }*/}
-              {/*        return text;*/}
-              {/*      });*/}
-              {/*    }}*/}
-              {/*    onChangeText={(val) => {*/}
-              {/*      setInputTemp(val);*/}
-              {/*    }}*/}
-              {/*  />*/}
-              {/*</ThemedView>*/}
-              {/*<ThemedView style={{ marginTop: 20, flexDirection: "row", flexWrap: "wrap", gap: 10 }}>*/}
-              {/*  <Button*/}
-              {/*    onPress={async () => {*/}
-              {/*      await sendCommand("set_timer", AnovaService.commands["set_timer"](Number(inputTime)));*/}
-              {/*    }}*/}
-              {/*  >*/}
-              {/*    Set time*/}
-              {/*  </Button>*/}
-              {/*  <Input*/}
-              {/*    value={inputTime}*/}
-              {/*    inputMode={"numeric"}*/}
-              {/*    maxLength={4}*/}
-              {/*    onBlur={() => {*/}
-              {/*      setInputTime((text) => {*/}
-              {/*        if (Number(text) < 0) {*/}
-              {/*          return String(0);*/}
-              {/*        }*/}
-
-              {/*        if (Number(text) > 6000) {*/}
-              {/*          return String(6000);*/}
-              {/*        }*/}
-              {/*        return text;*/}
-              {/*      });*/}
-              {/*    }}*/}
-              {/*    onChangeText={(val) => {*/}
-              {/*      if (details.status && ["running", "start"].includes(details.status)) {*/}
-              {/*        return;*/}
-              {/*      }*/}
-              {/*      setInputTime(val);*/}
-              {/*    }}*/}
-              {/*  />*/}
-              {/*</ThemedView>*/}
+              {/*<FormSetTemperature />*/}
+              {/*<FormSetTimer />*/}
             </>
           </>
         ) : (
-          <ThemedText>Loading</ThemedText>
+          <Text>Loading</Text>
         )}
-      </ThemedView>
+      </View>
     </ParallaxScrollView>
   );
 }

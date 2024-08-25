@@ -1,5 +1,5 @@
 import React, { ComponentProps } from "react";
-import { ThemedText } from "@/components/ThemedText";
+import { Text } from "@/components/Text";
 import { Pressable, StyleProp, ViewStyle, StyleSheet } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
@@ -20,7 +20,7 @@ export const Button = ({ style, disabled, children, ...rest }: Props) => {
       disabled={disabled}
       {...rest}
     >
-      <ThemedText style={[styles.text, { color }]}>{children}</ThemedText>
+      <Text style={[styles.text, { color }]}>{children}</Text>
     </Pressable>
   );
 };
