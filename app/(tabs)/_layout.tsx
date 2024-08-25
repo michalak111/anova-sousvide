@@ -25,7 +25,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="device"
         options={{
-          title: "Anova",
+          title: "Device",
           tabBarIcon: ({ color, focused }) => <TabBarIcon name={"fast-food"} color={color} />,
         }}
       />
