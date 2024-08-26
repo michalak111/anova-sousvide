@@ -14,6 +14,7 @@ import { FormSetTemperature } from "@/components/Form/FormSetTemperature";
 import { FormSetTimer } from "@/components/Form/FormSetTimer";
 import { CookingPanel } from "@/components/CookingPanel/CookingPanel";
 import { FormModal } from "@/components/Form/FormModal";
+import { useCookingStateStore } from "@/stores/cookingStore";
 
 export default function DeviceTab() {
   const [isScanning, setIsScanning] = useState(false);
@@ -21,12 +22,7 @@ export default function DeviceTab() {
   const [device, setDevice] = useState<Device>();
   const [characteristic, setCharacteristic] = useState<Characteristic>();
   const commandRef = useRef<{ id: string; key: AnovaService.CommandKey }>();
-  const [state, setState] = useState<AnovaService.CookingState>({
-    temperature: null,
-    targetTemperature: null,
-    status: null,
-    timer: null,
-  });
+  const { cookingState: state, update: updateState } = useCookingStateStore();
   const [tempModalVal, setTempModalVal] = useState<string | null>("");
   const [timerModalVal, setTimerModalVal] = useState<string | null>("");
 
@@ -190,22 +186,22 @@ export default function DeviceTab() {
 
             switch (command.key) {
               case "read_temp": {
-                setState((details) => ({ ...details, temperature: decodedVal }));
+                updateState("temperature", decodedVal);
                 break;
               }
               case "read_timer": {
-                setState((details) => ({ ...details, timer: decodedVal }));
+                updateState("timer", decodedVal);
                 break;
               }
               case "set_target_temp":
               case "read_target_temp": {
-                setState((details) => ({ ...details, targetTemperature: decodedVal }));
+                updateState("targetTemperature", decodedVal);
                 break;
               }
               case "read_status":
               case "start":
               case "stop": {
-                setState((details) => ({ ...details, status: decodedVal as "start" | "stop" }));
+                updateState("status", decodedVal);
                 break;
               }
             }
@@ -295,7 +291,7 @@ export default function DeviceTab() {
           initialValue={timerModalVal ?? ""}
           onSave={async (value) => {
             await sendCommand("set_timer", AnovaService.commands["set_timer"](Number(value)));
-            setState((state) => ({ ...state, timerSet: value }));
+            updateState("timerSet", value);
             setTimerModalVal(null);
           }}
         />

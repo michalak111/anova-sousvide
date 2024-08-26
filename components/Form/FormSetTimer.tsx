@@ -41,13 +41,9 @@ export const FormSetTimer = ({ initialValue, onSave }: Props) => {
           inputMode={"numeric"}
           maxLength={4}
           onBlur={() => {
-            setValue((text) => {
-              return validate(text);
-            });
+            setValue(validate);
           }}
-          onChangeText={(val) => {
-            setValue(val);
-          }}
+          onChangeText={setValue}
         />
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
           <Text type="subtitle">{value ? displayCookingTime(value) : "0h 00m"}</Text>

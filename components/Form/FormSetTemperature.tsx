@@ -38,14 +38,10 @@ export const FormSetTemperature = ({ initialValue, onSave }: Props) => {
         placeholder="Temperature in Celcius"
         inputMode={"decimal"}
         maxLength={4}
-        onBlur={(e) => {
-          setValue((text) => {
-            return validate(text);
-          });
+        onBlur={() => {
+          setValue(validate);
         }}
-        onChangeText={(val) => {
-          setValue(val);
-        }}
+        onChangeText={setValue}
       />
 
       <Button

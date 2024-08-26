@@ -7,11 +7,13 @@ import React, { useState } from "react";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { Button } from "@/components/Button";
 import { BottomDrawer } from "@/components/BottomDrawer";
+import { CookingStatusBar } from "@/components/CookingStatusBar";
 
 export default function IndexTab() {
   const [opened, setOpened] = useState(false);
   return (
     <>
+      <CookingStatusBar />
       <ParallaxScrollView
         headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
         headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}
