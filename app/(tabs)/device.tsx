@@ -20,7 +20,6 @@ export default function DeviceTab() {
   const [connectionError, setConnectionError] = useState(false);
   const [device, setDevice] = useState<Device>();
   const [characteristic, setCharacteristic] = useState<Characteristic>();
-  const commandRef = useRef<{ id: string; key: AnovaService.CommandKey }>();
   const [state, setState] = useState<AnovaService.CookingState>({
     temperature: null,
     targetTemperature: null,
@@ -86,15 +85,40 @@ export default function DeviceTab() {
   }
 
   async function sendCommand(key: AnovaService.CommandKey, value: string) {
-    try {
-      await sleep();
-      const id = Date.now().toString();
-      await characteristic?.writeWithResponse(AnovaService.encodeCmd(value), id);
-      logger("command", id, key, value);
-      commandRef.current = { id, key };
-    } catch (e) {
-      logger("command err", e);
-    }
+    const id = Date.now().toString();
+    await characteristic?.writeWithResponse(AnovaService.encodeCmd(value), id);
+    return await new Promise<string>((resolve) => {
+      const subscription = characteristic?.monitor((device, characteristic) => {
+        const value = characteristic?.value && AnovaService.decodeCmd(characteristic.value);
+        logger("command monitor", id, value);
+        subscription?.remove();
+
+        if (value) {
+          switch (key) {
+            case "read_temp": {
+              setState((details) => ({ ...details, temperature: value }));
+              break;
+            }
+            case "read_timer": {
+              setState((details) => ({ ...details, timer: value }));
+              break;
+            }
+            case "set_target_temp":
+            case "read_target_temp": {
+              setState((details) => ({ ...details, targetTemperature: value }));
+              break;
+            }
+            case "read_status":
+            case "start":
+            case "stop": {
+              setState((details) => ({ ...details, status: value as "start" | "stop" }));
+              break;
+            }
+          }
+          resolve(value);
+        }
+      }, id);
+    });
   }
 
   useEffect(() => {
@@ -172,52 +196,6 @@ export default function DeviceTab() {
       };
     },
     [characteristic],
-  );
-
-  useEffect(
-    function monitorCharacteristics() {
-      let subscription: Subscription | null;
-      if (characteristic) {
-        logger("characteristic monitoring");
-        subscription = characteristic.monitor((error, characteristic, ...rest) => {
-          logger("monitor logger", error, characteristic, ...rest);
-          if (characteristic?.value) {
-            const decodedVal = AnovaService.decodeCmd(characteristic.value);
-            logger("monitor value", decodedVal, characteristic);
-            const command = commandRef.current || { key: "" };
-
-            commandRef.current = undefined;
-
-            switch (command.key) {
-              case "read_temp": {
-                setState((details) => ({ ...details, temperature: decodedVal }));
-                break;
-              }
-              case "read_timer": {
-                setState((details) => ({ ...details, timer: decodedVal }));
-                break;
-              }
-              case "set_target_temp":
-              case "read_target_temp": {
-                setState((details) => ({ ...details, targetTemperature: decodedVal }));
-                break;
-              }
-              case "read_status":
-              case "start":
-              case "stop": {
-                setState((details) => ({ ...details, status: decodedVal as "start" | "stop" }));
-                break;
-              }
-            }
-          }
-        });
-      }
-
-      return () => {
-        subscription?.remove();
-      };
-    },
-    [characteristic, commandRef],
   );
 
   return (
