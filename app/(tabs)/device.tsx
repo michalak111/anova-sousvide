@@ -1,45 +1,57 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet } from "react-native";
+import { ActivityIndicator, StyleSheet } from "react-native";
 
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { Text } from "@/components/Text";
 import { View } from "@/components/View";
 import { BLEService } from "@/services/BLEService";
-import React, { ComponentProps, useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Characteristic, Device, Subscription } from "react-native-ble-plx";
 import { AnovaService } from "@/services/AnovaService";
 import { noop, sleep } from "@/lib/utils";
-import { BottomDrawer } from "@/components/BottomDrawer";
 import { Button } from "@/components/Button";
 import { FormSetTemperature } from "@/components/Form/FormSetTemperature";
 import { FormSetTimer } from "@/components/Form/FormSetTimer";
 import { CookingPanel } from "@/components/CookingPanel/CookingPanel";
-
-/**
- * TODO - sometimes scanning not working after app reload, needs to be killed
- * TODO - implement initial connection with loader, after timeout show troubleshooting instructions
- * TODO - update timer input from events
- */
+import { FormModal } from "@/components/Form/FormModal";
 
 export default function DeviceTab() {
-  const [isConnecting, setIsConnecting] = useState(true);
+  const [isScanning, setIsScanning] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
   const [device, setDevice] = useState<Device>();
   const [characteristic, setCharacteristic] = useState<Characteristic>();
   const commandRef = useRef<{ id: string; key: AnovaService.CommandKey }>();
-  const [state, setState] = useState<Partial<AnovaService.CookingState>>({});
+  const [state, setState] = useState<AnovaService.CookingState>({
+    temperature: null,
+    targetTemperature: null,
+    status: null,
+    timer: null,
+  });
   const [tempModalVal, setTempModalVal] = useState<string | null>("");
   const [timerModalVal, setTimerModalVal] = useState<string | null>("");
 
-  const deviceConnected =
-    !isConnecting && !connectionError && device && characteristic && Object.keys(state).length === 4;
+  const deviceConnected = useMemo(
+    () => !isScanning && !connectionError && device && characteristic && Object.values(state).every(Boolean),
+    [isScanning, connectionError, device, characteristic, state],
+  );
 
   async function scanForDevice() {
     logger("init scanning");
-    return BLEService.scanDevices(
+    setIsScanning(true);
+
+    const timeout = setTimeout(() => {
+      setConnectionError(true);
+      setIsScanning(false);
+      BLEService.manager.stopDeviceScan();
+    }, 30 * 1000);
+
+    await BLEService.scanDevices(
       async (device) => {
         if (AnovaService.validateDeviceName(device)) {
           await connectToDevice(device.id);
+          setConnectionError(false);
+          setIsScanning(false);
+          clearTimeout(timeout);
         }
       },
       [AnovaService.DEVICE_SERVICE_UUID],
@@ -93,7 +105,6 @@ export default function DeviceTab() {
   useEffect(() => {
     (async () => {
       try {
-        setIsConnecting(true);
         const isConnected = await BLEService.isDeviceConnected().catch(noop);
         const device = BLEService.getDevice();
         if (isConnected && device) {
@@ -116,10 +127,7 @@ export default function DeviceTab() {
         await scanForDevice();
       } catch (e) {
         setConnectionError(true);
-        logger("could not connect to device");
-      } finally {
-        logger("init completed");
-        setIsConnecting(false);
+        logger("could not connect to device", e);
       }
     })();
   }, []);
@@ -129,13 +137,14 @@ export default function DeviceTab() {
       let subscription: Subscription | null;
       if (device) {
         void findCharacteistic().catch(noop);
-        subscription = BLEService.onDeviceDisconnected((error, device) => {
+        subscription = BLEService.onDeviceDisconnected(async (error, device) => {
           logger("disconnected", error, device);
-          // device?.connect();
-          BLEService.isDeviceConnected().catch(() => {
+          const isConnected = await BLEService.isDeviceConnected();
+          if (!isConnected) {
+            setConnectionError(true);
             setDevice(undefined);
             setCharacteristic(undefined);
-          });
+          }
         });
       }
 
@@ -159,7 +168,7 @@ export default function DeviceTab() {
       if (characteristic) {
         interval = setInterval(async () => {
           void fetchDeviceData();
-        }, 10 * 1000);
+        }, 15 * 1000);
 
         void fetchDeviceData();
       }
@@ -236,10 +245,12 @@ export default function DeviceTab() {
                 await sendCommand("stop", AnovaService.commands["stop"]());
                 await sendCommand("read_status", AnovaService.commands["read_status"]());
               }}
-              onTempClick={() => setTempModalVal((o) => (o ? null : (state.temperature ?? "0")))}
-              onTimerClick={() =>
-                setTimerModalVal((o) => (o ? null : String(AnovaService.timerToMinutes(state.timer ?? "0"))))
-              }
+              onTempClick={() => setTempModalVal((o) => (o ? null : (state.targetTemperature ?? "0")))}
+              onTimerClick={() => {
+                setTimerModalVal((o) =>
+                  o ? null : String(AnovaService.timerToMinutes(state.timer ?? "0") || state.timerSet || 0),
+                );
+              }}
             />
           ) : (
             <>
@@ -255,12 +266,10 @@ export default function DeviceTab() {
                     style={{ marginTop: 20 }}
                     onPress={async () => {
                       try {
-                        setIsConnecting(true);
+                        setConnectionError(false);
                         await scanForDevice();
                       } catch (e) {
                         setConnectionError(true);
-                      } finally {
-                        setIsConnecting(false);
                       }
                     }}
                   >
@@ -268,7 +277,10 @@ export default function DeviceTab() {
                   </Button>
                 </View>
               ) : (
-                <Text>Connecting to device. This might take a while.</Text>
+                <View style={{ gap: 20, justifyContent: "center" }}>
+                  <ActivityIndicator size="large" />
+                  <Text>Connecting to device. This might take a while.</Text>
+                </View>
               )}
             </>
           )}
@@ -288,6 +300,7 @@ export default function DeviceTab() {
           initialValue={timerModalVal ?? ""}
           onSave={async (value) => {
             await sendCommand("set_timer", AnovaService.commands["set_timer"](Number(value)));
+            setState((state) => ({ ...state, timerSet: value }));
             setTimerModalVal(null);
           }}
         />
@@ -306,20 +319,5 @@ const styles = StyleSheet.create({
 });
 
 const logger = (...args: unknown[]) => {
-  // console.logger("DEVICE::", ...args);
-};
-
-type FormModalProps = ComponentProps<typeof BottomDrawer> & {
-  onClose: () => void;
-};
-
-const FormModal = ({ children, onClose, ...rest }: FormModalProps) => {
-  return (
-    <BottomDrawer {...rest}>
-      {children}
-      <Button variant="outline" style={{ marginTop: 10 }} onPress={onClose}>
-        Cancel
-      </Button>
-    </BottomDrawer>
-  );
+  console.log("DEVICE::", ...args);
 };

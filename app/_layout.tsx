@@ -7,12 +7,13 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { BLEService } from "@/services/BLEService";
+import { mockBLEService } from "@/services/mocks/MockBLEService";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 if (process.env.EXPO_PUBLIC_BLE_MOCK_ENABLED === "true") {
-  require("../services/mocks/MockBLEService");
+  mockBLEService();
 }
 
 export default function RootLayout() {

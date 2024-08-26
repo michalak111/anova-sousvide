@@ -2,6 +2,7 @@ import { View } from "@/components/View";
 import { Text } from "@/components/Text";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet } from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 type Props = { current: string; target: string };
 
@@ -28,7 +29,8 @@ export const CookingTemperature = ({ current, target }: Props) => {
 };
 
 const CelciusIcon = () => {
-  return <MaterialCommunityIcons name="temperature-celsius" size={24} color="black" />;
+  const color = useThemeColor({}, "text");
+  return <MaterialCommunityIcons name="temperature-celsius" size={24} color={color} />;
 };
 
 const styles = StyleSheet.create({

@@ -311,7 +311,9 @@ class BLEServiceInstance {
   isDeviceConnected = () => {
     if (!this.device) {
       this.showErrorToast(deviceNotConnectedErrorText);
-      throw new Error(deviceNotConnectedErrorText);
+      return new Promise((_, reject) => {
+        reject(deviceNotConnectedErrorText);
+      });
     }
     return this.manager.isDeviceConnected(this.device.id);
   };
