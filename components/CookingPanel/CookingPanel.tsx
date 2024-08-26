@@ -20,7 +20,7 @@ export const CookingPanel = ({ state, onStartClick, onStopClick, onTimerClick, o
       {state.temperature && state.targetTemperature ? (
         <CookingTemperature current={state.temperature} target={state.targetTemperature} />
       ) : null}
-      {state.timer ? <CookingTimer timer={state.timer} /> : null}
+      {state.timer ? <CookingTimer timer={state.timer} timerSet={state.timerSet} /> : null}
       {state.status ? (
         <View
           style={{
@@ -34,7 +34,7 @@ export const CookingPanel = ({ state, onStartClick, onStopClick, onTimerClick, o
           <ButtonIcon onPress={onTempClick}>
             <FontAwesome6 name="temperature-half" size={24} color="black" />
           </ButtonIcon>
-          {["stop", "stopped"].includes(state.status ?? "") ? (
+          {["stop", "stopped", "low water"].includes(state.status ?? "") ? (
             <ButtonIcon size={80} onPress={onStartClick}>
               <FontAwesome5 name="play" size={24} color="black" />
             </ButtonIcon>

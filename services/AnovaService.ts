@@ -65,10 +65,11 @@ export const displayCookingTime = (timer: string) => {
 export namespace AnovaService {
   export type CommandKey = keyof typeof commands;
   export type CookingState = {
-    temperature: string;
-    targetTemperature: string;
-    status: "start" | "stop" | "stopped" | "running";
-    timer: string;
+    temperature: string | null;
+    targetTemperature: string | null;
+    status: "start" | "stop" | "stopped" | "running" | "low water" | null;
+    timer: string | null;
+    timerSet?: string;
   };
 }
 
