@@ -92,13 +92,6 @@ export default function DeviceTab() {
       await characteristic?.writeWithResponse(AnovaService.encodeCmd(value), id);
       logger("command", id, key, value);
       commandRef.current = { id, key };
-      // await new Promise<void>((resolve) => {
-      //   const subscription = characteristic?.monitor((device, characteristic) => {
-      //     logger("command monitor", id, characteristic?.value && decode(characteristic.value));
-      //     subscription?.remove();
-      //     resolve();
-      //   }, id);
-      // });
     } catch (e) {
       logger("command err", e);
     }
