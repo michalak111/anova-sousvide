@@ -45,9 +45,13 @@ const restoreDeviceId = () => SecureStore.getItem("STORE_ANOVA_DEVICE_ID");
 
 const forgetDeviceId = () => SecureStore.deleteItemAsync("STORE_ANOVA_DEVICE_ID");
 
-export const timerToHoursMinutes = (timer: string) => {
+export const timerToMinutes = (timer: string) => {
   const [time] = timer.split(" ");
-  const totalMinutes = Number(time);
+  return Number(time);
+};
+
+export const timerToHoursMinutes = (timer: string) => {
+  const totalMinutes = timerToMinutes(timer);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes - hours * 60;
   return { hours, minutes };
@@ -73,6 +77,7 @@ export const AnovaService = {
   storeDeviceId,
   restoreDeviceId,
   forgetDeviceId,
+  timerToMinutes,
   timerToHoursMinutes,
   displayCookingTime,
   commands,

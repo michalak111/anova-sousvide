@@ -36,8 +36,8 @@ export default function DeviceTab() {
   const [characteristic, setCharacteristic] = useState<Characteristic>();
   const commandRef = useRef<{ id: string; key: AnovaService.CommandKey }>();
   const [state, setState] = useState<Partial<CookingState>>({});
-  const [tempModal, setTempModal] = useState(false);
-  const [timerModal, setTimerModal] = useState(false);
+  const [tempModalVal, setTempModalVal] = useState<string | null>("");
+  const [timerModalVal, setTimerModalVal] = useState<string | null>("");
 
   async function scanForDevice() {
     logger("init scanning");
@@ -235,7 +235,7 @@ export default function DeviceTab() {
                     justifyContent: "center",
                   }}
                 >
-                  <ButtonIcon onPress={() => setTempModal((o) => !o)}>
+                  <ButtonIcon onPress={() => setTempModalVal((o) => (o ? null : (state.temperature ?? "0")))}>
                     <FontAwesome6 name="temperature-half" size={24} color="black" />
                   </ButtonIcon>
                   {["stop", "stopped"].includes(state.status ?? "") ? (
@@ -261,7 +261,11 @@ export default function DeviceTab() {
                       <FontAwesome5 name="stop" size={24} color="black" />
                     </ButtonIcon>
                   )}
-                  <ButtonIcon onPress={() => setTimerModal((o) => !o)}>
+                  <ButtonIcon
+                    onPress={() =>
+                      setTimerModalVal((o) => (o ? null : String(AnovaService.timerToMinutes(state.timer ?? "0"))))
+                    }
+                  >
                     <FontAwesome6 name="clock" size={24} color="black" />
                   </ButtonIcon>
                 </View>
@@ -272,19 +276,21 @@ export default function DeviceTab() {
           )}
         </View>
       </ParallaxScrollView>
-      <FormModal opened={tempModal} onClose={() => setTempModal(false)}>
+      <FormModal opened={!!tempModalVal} onClose={() => setTempModalVal(null)}>
         <FormSetTemperature
+          initialValue={tempModalVal ?? ""}
           onSave={async (value) => {
             await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](Number(value)));
-            setTempModal(false);
+            setTempModalVal(null);
           }}
         />
       </FormModal>
-      <FormModal opened={timerModal} onClose={() => setTimerModal(false)}>
+      <FormModal opened={!!timerModalVal} onClose={() => setTimerModalVal(null)}>
         <FormSetTimer
+          initialValue={timerModalVal ?? ""}
           onSave={async (value) => {
             await sendCommand("set_timer", AnovaService.commands["set_timer"](Number(value)));
-            setTimerModal(false);
+            setTimerModalVal(null);
           }}
         />
       </FormModal>

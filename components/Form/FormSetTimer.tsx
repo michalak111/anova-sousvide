@@ -1,7 +1,7 @@
 import { View } from "@/components/View";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Text } from "@/components/Text";
 import { displayCookingTime } from "@/services/AnovaService";
 import { Keyboard } from "react-native";
@@ -16,6 +16,11 @@ type Props<V = string> = {
 
 export const FormSetTimer = ({ initialValue, onSave }: Props) => {
   const [value, setValue] = useState(initialValue ?? "");
+
+  useEffect(() => {
+    setValue(initialValue ?? "");
+  }, [initialValue]);
+
   const validate = (val: string) => {
     if (Number(val) < 0) {
       return String(0);
