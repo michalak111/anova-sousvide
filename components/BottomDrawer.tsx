@@ -50,7 +50,7 @@ export const BottomDrawer = ({ opened, children }: Props) => {
         },
       ]}
     >
-      <View style={[styles.content, theme === "dark" && { borderColor: "gray" }]}>{children}</View>
+      <View style={[styles.content, theme === "dark" && { borderColor: "gray", borderWidth: 3 }]}>{children}</View>
     </Animated.View>
   );
 };
@@ -69,6 +69,5 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     paddingHorizontal: 20,
     flex: 1,
-    borderWidth: 3,
   },
 });

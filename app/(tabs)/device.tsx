@@ -30,10 +30,12 @@ export default function DeviceTab() {
   const [tempModalVal, setTempModalVal] = useState<string | null>("");
   const [timerModalVal, setTimerModalVal] = useState<string | null>("");
 
-  const deviceConnected = useMemo(
-    () => !isScanning && !connectionError && device && characteristic && Object.values(state).every(Boolean),
-    [isScanning, connectionError, device, characteristic, state],
-  );
+  const deviceConnected = useMemo(() => {
+    const connectionEstablished = device && characteristic;
+    const stateLoaded = Object.values(state).every(Boolean);
+
+    return !isScanning && !connectionError && connectionEstablished && stateLoaded;
+  }, [isScanning, connectionError, device, characteristic, state]);
 
   async function scanForDevice() {
     logger("init scanning");
