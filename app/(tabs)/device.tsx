@@ -9,14 +9,11 @@ import React, { ComponentProps, useEffect, useRef, useState } from "react";
 import { Characteristic, Device, Subscription } from "react-native-ble-plx";
 import { AnovaService } from "@/services/AnovaService";
 import { noop, sleep } from "@/lib/utils";
-import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
-import { ButtonIcon } from "@/components/ButtonIcon";
-import { CookingTemperature } from "@/components/CookingPanel/CookingTemperature";
-import { CookingTimer } from "@/components/CookingPanel/CookingTimer";
 import { BottomDrawer } from "@/components/BottomDrawer";
 import { Button } from "@/components/Button";
 import { FormSetTemperature } from "@/components/Form/FormSetTemperature";
 import { FormSetTimer } from "@/components/Form/FormSetTimer";
+import { CookingPanel } from "@/components/CookingPanel/CookingPanel";
 
 /**
  * TODO - sometimes scanning not working after app reload, needs to be killed
@@ -24,18 +21,11 @@ import { FormSetTimer } from "@/components/Form/FormSetTimer";
  * TODO - update timer input from events
  */
 
-type CookingState = {
-  temperature: string;
-  targetTemperature: string;
-  status: "start" | "stop" | "stopped" | "running";
-  timer: string;
-};
-
 export default function DeviceTab() {
   const [device, setDevice] = useState<Device>();
   const [characteristic, setCharacteristic] = useState<Characteristic>();
   const commandRef = useRef<{ id: string; key: AnovaService.CommandKey }>();
-  const [state, setState] = useState<Partial<CookingState>>({});
+  const [state, setState] = useState<Partial<AnovaService.CookingState>>({});
   const [tempModalVal, setTempModalVal] = useState<string | null>("");
   const [timerModalVal, setTimerModalVal] = useState<string | null>("");
 
@@ -220,57 +210,23 @@ export default function DeviceTab() {
       >
         <View>
           {Object.keys(state).length === 4 ? (
-            <>
-              {state.temperature && state.targetTemperature ? (
-                <CookingTemperature current={state.temperature} target={state.targetTemperature} />
-              ) : null}
-              {state.timer ? <CookingTimer timer={state.timer} /> : null}
-              {state.status ? (
-                <View
-                  style={{
-                    marginTop: 20,
-                    flexDirection: "row",
-                    gap: 30,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <ButtonIcon onPress={() => setTempModalVal((o) => (o ? null : (state.temperature ?? "0")))}>
-                    <FontAwesome6 name="temperature-half" size={24} color="black" />
-                  </ButtonIcon>
-                  {["stop", "stopped"].includes(state.status ?? "") ? (
-                    <ButtonIcon
-                      size={80}
-                      onPress={async () => {
-                        await sendCommand("start_time", AnovaService.commands["start_time"]());
-                        await sendCommand("start", AnovaService.commands["start"]());
-                        await sendCommand("read_status", AnovaService.commands["read_status"]());
-                      }}
-                    >
-                      <FontAwesome5 name="play" size={24} color="black" />
-                    </ButtonIcon>
-                  ) : (
-                    <ButtonIcon
-                      size={80}
-                      onPress={async () => {
-                        await sendCommand("stop_time", AnovaService.commands["stop_time"]());
-                        await sendCommand("stop", AnovaService.commands["stop"]());
-                        await sendCommand("read_status", AnovaService.commands["read_status"]());
-                      }}
-                    >
-                      <FontAwesome5 name="stop" size={24} color="black" />
-                    </ButtonIcon>
-                  )}
-                  <ButtonIcon
-                    onPress={() =>
-                      setTimerModalVal((o) => (o ? null : String(AnovaService.timerToMinutes(state.timer ?? "0"))))
-                    }
-                  >
-                    <FontAwesome6 name="clock" size={24} color="black" />
-                  </ButtonIcon>
-                </View>
-              ) : null}
-            </>
+            <CookingPanel
+              state={state}
+              onStartClick={async () => {
+                await sendCommand("start_time", AnovaService.commands["start_time"]());
+                await sendCommand("start", AnovaService.commands["start"]());
+                await sendCommand("read_status", AnovaService.commands["read_status"]());
+              }}
+              onStopClick={async () => {
+                await sendCommand("stop_time", AnovaService.commands["stop_time"]());
+                await sendCommand("stop", AnovaService.commands["stop"]());
+                await sendCommand("read_status", AnovaService.commands["read_status"]());
+              }}
+              onTempClick={() => setTempModalVal((o) => (o ? null : (state.temperature ?? "0")))}
+              onTimerClick={() =>
+                setTimerModalVal((o) => (o ? null : String(AnovaService.timerToMinutes(state.timer ?? "0"))))
+              }
+            />
           ) : (
             <Text>Loading</Text>
           )}
