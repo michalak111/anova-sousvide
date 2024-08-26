@@ -22,12 +22,17 @@ import { CookingPanel } from "@/components/CookingPanel/CookingPanel";
  */
 
 export default function DeviceTab() {
+  const [isConnecting, setIsConnecting] = useState(true);
+  const [connectionError, setConnectionError] = useState(false);
   const [device, setDevice] = useState<Device>();
   const [characteristic, setCharacteristic] = useState<Characteristic>();
   const commandRef = useRef<{ id: string; key: AnovaService.CommandKey }>();
   const [state, setState] = useState<Partial<AnovaService.CookingState>>({});
   const [tempModalVal, setTempModalVal] = useState<string | null>("");
   const [timerModalVal, setTimerModalVal] = useState<string | null>("");
+
+  const deviceConnected =
+    !isConnecting && !connectionError && device && characteristic && Object.keys(state).length === 4;
 
   async function scanForDevice() {
     logger("init scanning");
@@ -46,6 +51,7 @@ export default function DeviceTab() {
     setDevice(device);
     AnovaService.storeDeviceId(device.id);
     logger("connected to device", device);
+    return device;
   }
 
   async function findCharacteistic() {
@@ -87,25 +93,33 @@ export default function DeviceTab() {
   useEffect(() => {
     (async () => {
       try {
+        setIsConnecting(true);
         const isConnected = await BLEService.isDeviceConnected().catch(noop);
-
-        if (isConnected) {
-          const device = BLEService.getDevice();
-          device && setDevice(device);
+        const device = BLEService.getDevice();
+        if (isConnected && device) {
+          setDevice(device);
           return;
         }
 
-        const restoredDevice = AnovaService.restoreDeviceId();
+        const deviceId = AnovaService.restoreDeviceId();
+        const restoredDevice = deviceId
+          ? await connectToDevice(deviceId).catch(() => {
+              void AnovaService.forgetDeviceId();
+              logger("could not connect to restored device");
+              return null;
+            })
+          : null;
         if (restoredDevice) {
-          await connectToDevice(restoredDevice).catch(() => {
-            logger("could not connect to restored device");
-          });
+          return;
         }
-      } catch (e) {
-        void AnovaService.forgetDeviceId();
+
         await scanForDevice();
+      } catch (e) {
+        setConnectionError(true);
+        logger("could not connect to device");
       } finally {
         logger("init completed");
+        setIsConnecting(false);
       }
     })();
   }, []);
@@ -209,7 +223,7 @@ export default function DeviceTab() {
         headerImage={<Ionicons size={310} name="fast-food" style={styles.headerImage} />}
       >
         <View>
-          {Object.keys(state).length === 4 ? (
+          {deviceConnected ? (
             <CookingPanel
               state={state}
               onStartClick={async () => {
@@ -228,7 +242,35 @@ export default function DeviceTab() {
               }
             />
           ) : (
-            <Text>Loading</Text>
+            <>
+              {connectionError ? (
+                <View>
+                  <Text type="defaultSemiBold">Could not connect to the device, try to:</Text>
+                  <Text>
+                    {"\n"}- turn on/off anova device
+                    {"\n"}- turn on/off bluetooth on your phone
+                    {"\n"}- close/kill app, so its not running in the background and re-run
+                  </Text>
+                  <Button
+                    style={{ marginTop: 20 }}
+                    onPress={async () => {
+                      try {
+                        setIsConnecting(true);
+                        await scanForDevice();
+                      } catch (e) {
+                        setConnectionError(true);
+                      } finally {
+                        setIsConnecting(false);
+                      }
+                    }}
+                  >
+                    Retry connection
+                  </Button>
+                </View>
+              ) : (
+                <Text>Connecting to device. This might take a while.</Text>
+              )}
+            </>
           )}
         </View>
       </ParallaxScrollView>
