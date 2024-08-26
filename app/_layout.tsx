@@ -11,11 +11,7 @@ import { BLEService } from "@/services/BLEService";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-const Config = {
-  mockBLEService: true,
-};
-
-if (Config.mockBLEService) {
+if (process.env.EXPO_PUBLIC_BLE_MOCK_ENABLED === "true") {
   require("../services/mocks/MockBLEService");
 }
 

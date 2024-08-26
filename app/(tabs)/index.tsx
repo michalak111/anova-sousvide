@@ -10,7 +10,6 @@ import { BottomDrawer } from "@/components/BottomDrawer";
 
 export default function IndexTab() {
   const [opened, setOpened] = useState(false);
-
   return (
     <>
       <ParallaxScrollView

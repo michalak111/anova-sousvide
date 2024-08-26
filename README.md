@@ -19,7 +19,7 @@ This is a React Native mobile app designed to control the Anova Sous Vide Precis
 2. Start the app
 
    ```bash
-    npx expo start
+    npx expo run:(android|ios)
    ```
 
 In the output, you'll find options to open the app in a
@@ -30,3 +30,13 @@ In the output, you'll find options to open the app in a
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+## Environment varialbes
+
+
+```
+.env.local
+
+# Mocks BleService.ts
+EXPO_PUBLIC_BLE_MOCK_ENABLED=true
+```
