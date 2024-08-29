@@ -1,5 +1,4 @@
 import React, { ComponentProps } from "react";
-import { StyleSheet } from "react-native";
 import { Button } from "@/components/Button";
 
 type Props = ComponentProps<typeof Button> & { children: React.ReactNode; size?: number };

@@ -8,11 +8,6 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { BLEService } from "@/services/BLEService";
 import { mockBLEService } from "@/services/mocks/MockBLEService";
-import { View } from "@/components/View";
-import { Text } from "@/components/Text";
-import { useCookingStateStore } from "@/stores/cookingStore";
-import { AnovaService } from "@/services/AnovaService";
-import { CookingStatusBar } from "@/components/CookingStatusBar";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

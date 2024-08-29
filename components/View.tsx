@@ -1,14 +1,19 @@
 import { View as RNView, type ViewProps } from "react-native";
 
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { ComponentRef, forwardRef } from "react";
 
 export type ThemedViewProps = ViewProps & {
   lightColor?: string;
   darkColor?: string;
 };
 
-export function View({ style, lightColor, darkColor, ...otherProps }: ThemedViewProps) {
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, "background");
+export const View = forwardRef<ComponentRef<typeof RNView>, ThemedViewProps>(
+  ({ style, lightColor, darkColor, ...otherProps }, ref) => {
+    const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, "background");
 
-  return <RNView style={[{ backgroundColor }, style]} {...otherProps} />;
-}
+    return <RNView ref={ref} style={[{ backgroundColor }, style]} {...otherProps} />;
+  },
+);
+
+View.displayName = "View";

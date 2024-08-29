@@ -19,7 +19,6 @@ export default function IndexTab() {
         headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}
       >
         <View>
-          <Text>Home</Text>
           <Button
             onPress={() => {
               setOpened((o) => !o);

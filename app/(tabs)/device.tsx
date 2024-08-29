@@ -5,7 +5,7 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { Text } from "@/components/Text";
 import { View } from "@/components/View";
 import { BLEService } from "@/services/BLEService";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Characteristic, Device, Subscription } from "react-native-ble-plx";
 import { AnovaService } from "@/services/AnovaService";
 import { noop, sleep } from "@/lib/utils";
@@ -15,8 +15,13 @@ import { FormSetTimer } from "@/components/Form/FormSetTimer";
 import { CookingPanel } from "@/components/CookingPanel/CookingPanel";
 import { FormModal } from "@/components/Form/FormModal";
 import { useCookingStateStore } from "@/stores/cookingStore";
+import { router, useLocalSearchParams } from "expo-router";
 
 export default function DeviceTab() {
+  const { timeInMinutes: queryTime, temperatureCelsius: queryTemperature } = useLocalSearchParams<{
+    timeInMinutes: string;
+    temperatureCelsius: string;
+  }>();
   const [isScanning, setIsScanning] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
   const [device, setDevice] = useState<Device>();
@@ -33,7 +38,7 @@ export default function DeviceTab() {
     return !isScanning && !connectionError && connectionEstablished && stateLoaded;
   }, [isScanning, connectionError, device, characteristic, state]);
 
-  async function scanForDevice() {
+  const scanForDevice = useCallback(async () => {
     logger("init scanning");
     setIsScanning(true);
 
@@ -54,7 +59,7 @@ export default function DeviceTab() {
       },
       [AnovaService.DEVICE_SERVICE_UUID],
     );
-  }
+  }, []);
 
   async function connectToDevice(id: string) {
     const device = await BLEService.connectToDevice(id);
@@ -81,17 +86,41 @@ export default function DeviceTab() {
     setCharacteristic(expectedCharacteristic);
   }
 
-  async function sendCommand(key: AnovaService.CommandKey, value: string) {
-    try {
-      await sleep();
-      const id = Date.now().toString();
-      await characteristic?.writeWithResponse(AnovaService.encodeCmd(value), id);
-      logger("command", id, key, value);
-      commandRef.current = { id, key };
-    } catch (e) {
-      logger("command err", e);
-    }
-  }
+  const sendCommand = useCallback(
+    async (key: AnovaService.CommandKey, value: string) => {
+      try {
+        await sleep();
+        const id = Date.now().toString();
+        await characteristic?.writeWithResponse(AnovaService.encodeCmd(value), id);
+        logger("command", id, key, value);
+        commandRef.current = { id, key };
+      } catch (e) {
+        logger("command err", e);
+      }
+    },
+    [characteristic],
+  );
+
+  const cookRecipe = useCallback(
+    async (time: string, temperature: string) => {
+      await sendCommand("set_target_temp", AnovaService.commands["set_target_temp"](Number(temperature)));
+      await sendCommand("set_timer", AnovaService.commands["set_timer"](Number(time)));
+      await sendCommand("start_time", AnovaService.commands["start_time"]());
+      await sendCommand("start", AnovaService.commands["start"]());
+    },
+    [sendCommand],
+  );
+
+  useEffect(
+    function handleQueryParams() {
+      if (queryTime && queryTemperature && deviceConnected) {
+        cookRecipe(queryTime, queryTemperature).then(() => {
+          router.setParams({ timeInMinutes: "", temperatureCelsius: "" });
+        });
+      }
+    },
+    [queryTime, queryTemperature, deviceConnected, cookRecipe],
+  );
 
   useEffect(() => {
     (async () => {
@@ -121,7 +150,7 @@ export default function DeviceTab() {
         logger("could not connect to device", e);
       }
     })();
-  }, []);
+  }, [scanForDevice]);
 
   useEffect(
     function listenForDeviceConenction() {
@@ -167,7 +196,7 @@ export default function DeviceTab() {
         interval && clearInterval(interval);
       };
     },
-    [characteristic],
+    [characteristic, sendCommand],
   );
 
   useEffect(
@@ -213,7 +242,7 @@ export default function DeviceTab() {
         subscription?.remove();
       };
     },
-    [characteristic, commandRef],
+    [characteristic, commandRef, updateState],
   );
 
   return (
@@ -261,6 +290,7 @@ export default function DeviceTab() {
                         await scanForDevice();
                       } catch (e) {
                         setConnectionError(true);
+                        logger(e);
                       }
                     }}
                   >
@@ -310,5 +340,5 @@ const styles = StyleSheet.create({
 });
 
 const logger = (...args: unknown[]) => {
-  console.log("DEVICE::", ...args);
+  // console.log("DEVICE::", ...args);
 };

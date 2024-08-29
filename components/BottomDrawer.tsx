@@ -17,7 +17,7 @@ export const BottomDrawer = ({ opened, children }: Props) => {
   const contentHeight = useRef<number>(minHeight);
   const transformY = useSharedValue<number>(screenHeight);
 
-  const { state, height } = useAnimatedKeyboard();
+  const { height } = useAnimatedKeyboard();
   const animatedStyles = useAnimatedStyle(() => ({
     transform: [
       {
@@ -34,7 +34,7 @@ export const BottomDrawer = ({ opened, children }: Props) => {
     } else {
       transformY.value = screenHeight;
     }
-  }, [opened]);
+  }, [opened, screenHeight, tabBarHeight, transformY]);
 
   return (
     <Animated.View

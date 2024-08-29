@@ -10,16 +10,25 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      initialRouteName="home"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
+          unmountOnBlur: true,
           title: "Home",
           tabBarIcon: ({ color, focused }) => <TabBarIcon name={focused ? "home" : "home-outline"} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="index"
+        redirect={true}
+        options={{
+          href: null,
         }}
       />
       <Tabs.Screen
