@@ -1,10 +1,12 @@
-export const guidesCollection = [
+import { Guide } from "@/app/(tabs)/home/guides/index";
+
+export const guidesCollection: Guide[] = [
   // Beef - Tenderloin
   {
     id: "1",
     title: "Beef Tenderloin",
     category: ["Beef", "Tenderloin"],
-    variant: [
+    variants: [
       {
         name: "Rare",
         cookerState: {
@@ -52,7 +54,7 @@ export const guidesCollection = [
     id: "2",
     title: "Beef Porterhouse",
     category: ["Beef", "Porterhouse"],
-    variant: [
+    variants: [
       {
         name: "Rare",
         cookerState: {
@@ -100,7 +102,7 @@ export const guidesCollection = [
     id: "3",
     title: "Chicken Breast",
     category: ["Poultry", "Chicken"],
-    variant: [
+    variants: [
       {
         name: "Rare",
         cookerState: {
@@ -132,7 +134,7 @@ export const guidesCollection = [
     id: "4",
     title: "Turkey Thigh",
     category: ["Poultry", "Turkey"],
-    variant: [
+    variants: [
       {
         name: "Rare",
         cookerState: {
@@ -164,7 +166,7 @@ export const guidesCollection = [
     id: "5",
     title: "Pork Loin",
     category: ["Pork"],
-    variant: [
+    variants: [
       {
         name: "Rare",
         cookerState: {
@@ -196,7 +198,7 @@ export const guidesCollection = [
     id: "6",
     title: "Pork Chop",
     category: ["Pork"],
-    variant: [
+    variants: [
       {
         name: "Rare",
         cookerState: {
@@ -228,7 +230,7 @@ export const guidesCollection = [
     id: "7",
     title: "Asparagus",
     category: ["Vegetables"],
-    variant: [
+    variants: [
       {
         name: "Tender-Crisp",
         cookerState: {
@@ -252,7 +254,7 @@ export const guidesCollection = [
     id: "8",
     title: "Carrot",
     category: ["Vegetables"],
-    variant: [
+    variants: [
       {
         name: "Tender-Crisp",
         cookerState: {

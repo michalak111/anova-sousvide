@@ -3,8 +3,8 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { useEffect, useState } from "react";
 import { Text } from "@/components/Text";
-import { displayCookingTime } from "@/services/AnovaService";
 import { Keyboard } from "react-native";
+import { AnovaService } from "@/services/AnovaService";
 
 // TODO - implement input mask, so user types time in hh:mm format
 // TODO - improve validaton
@@ -46,7 +46,7 @@ export const FormSetTimer = ({ initialValue, onSave }: Props) => {
           onChangeText={setValue}
         />
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <Text type="subtitle">{value ? displayCookingTime(value) : "0h 00m"}</Text>
+          <Text type="subtitle">{value ? AnovaService.displayCookingTime(value) : "0h 00m"}</Text>
         </View>
       </View>
       <View>

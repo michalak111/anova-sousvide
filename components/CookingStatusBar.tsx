@@ -8,7 +8,15 @@ export const CookingStatusBar = () => {
 
   if (["start", "running"].includes(cookingState.status ?? "")) {
     return (
-      <View style={{ backgroundColor: "#4BB543", padding: 5, flexDirection: "row", justifyContent: "center", gap: 10 }}>
+      <View
+        style={{
+          backgroundColor: "#4BB543",
+          padding: 5,
+          flexDirection: "row",
+          justifyContent: "center",
+          gap: 10,
+        }}
+      >
         <Text style={{ color: "white" }}>
           🌡️ {cookingState.temperature}°C / {cookingState.targetTemperature}°C
         </Text>

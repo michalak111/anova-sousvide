@@ -10,11 +10,11 @@ export type Guide = {
   id: string;
   title: string;
   category: string[];
-  variant: {
+  variants: {
     name: string;
     cookerState: {
-      temperatureCelcius: string;
-      temperatureFarenheit: string;
+      temperatureCelsius: string;
+      temperatureFahrenheit: string;
       timeInMinutes: string;
     };
   }[];

@@ -5,6 +5,7 @@ import { guidesCollection } from "@/app/(tabs)/home/guides/data";
 import { ScrollView } from "react-native";
 import { Collapsible } from "@/components/Collapsible";
 import { Button } from "@/components/Button";
+import { AnovaService } from "@/services/AnovaService";
 
 export default function GuidePage({ ...props }) {
   const { id } = useLocalSearchParams();
@@ -24,19 +25,34 @@ export default function GuidePage({ ...props }) {
       <Stack.Screen options={{ title: guide.title }} />
       <ScrollView>
         <View style={{ padding: 16 }}>
-          <Text>Guide no: {id}</Text>
-          {/*<Text>{JSON.stringify(guide, null, 2)}</Text>*/}
-          {guide.variant.map((variant) => {
-            const { timeInMinutes, temperatureCelsius } = variant.cookerState;
-            return (
-              <Collapsible key={variant.name} title={variant.name}>
-                <Text>{JSON.stringify(variant, null, 2)}</Text>
-                <Link href={{ pathname: `/device`, params: { timeInMinutes, temperatureCelsius } }} asChild>
-                  <Button style={{ height: 38, width: 120 }}>Cook it</Button>
-                </Link>
-              </Collapsible>
-            );
-          })}
+          <Text type="subtitle">Cooking variants</Text>
+          <View style={{ marginTop: 20, gap: 8 }}>
+            {guide.variants.map((variant) => {
+              const { timeInMinutes, temperatureCelsius } = variant.cookerState;
+              return (
+                <Collapsible key={variant.name} title={variant.name}>
+                  <View
+                    style={{ gap: 6, flexDirection: "row", flexWrap: "wrap", alignItems: "center", marginBottom: 20 }}
+                  >
+                    <View>
+                      <Text>
+                        Temperature: <Text style={{ fontWeight: 600 }}>{variant.cookerState.temperatureCelsius}°C</Text>
+                      </Text>
+                      <Text>
+                        Time:{" "}
+                        <Text style={{ fontWeight: 600 }}>
+                          {AnovaService.displayCookingTime(variant.cookerState.timeInMinutes)}
+                        </Text>
+                      </Text>
+                    </View>
+                    <Link href={{ pathname: `/device`, params: { timeInMinutes, temperatureCelsius } }} asChild>
+                      <Button style={{ height: 38, width: 120, flex: 0, marginLeft: "auto" }}>Cook it</Button>
+                    </Link>
+                  </View>
+                </Collapsible>
+              );
+            })}
+          </View>
         </View>
       </ScrollView>
     </>
