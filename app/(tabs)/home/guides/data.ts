@@ -9,41 +9,36 @@ export const guidesCollection: Guide[] = [
     variants: [
       {
         name: "Rare",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "49",
-          temperatureFahrenheit: "120",
           timeInMinutes: "60",
         },
       },
       {
         name: "Medium-Rare",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "54",
-          temperatureFahrenheit: "129",
           timeInMinutes: "90",
         },
       },
       {
         name: "Medium",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "60",
-          temperatureFahrenheit: "140",
           timeInMinutes: "120",
         },
       },
       {
         name: "Medium-Well",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "65",
-          temperatureFahrenheit: "149",
           timeInMinutes: "120",
         },
       },
       {
         name: "Well-Done",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "71",
-          temperatureFahrenheit: "160",
           timeInMinutes: "120",
         },
       },
@@ -57,41 +52,36 @@ export const guidesCollection: Guide[] = [
     variants: [
       {
         name: "Rare",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "49",
-          temperatureFahrenheit: "120",
           timeInMinutes: "60",
         },
       },
       {
         name: "Medium-Rare",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "54",
-          temperatureFahrenheit: "129",
           timeInMinutes: "90",
         },
       },
       {
         name: "Medium",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "60",
-          temperatureFahrenheit: "140",
           timeInMinutes: "120",
         },
       },
       {
         name: "Medium-Well",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "65",
-          temperatureFahrenheit: "149",
           timeInMinutes: "120",
         },
       },
       {
         name: "Well-Done",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "71",
-          temperatureFahrenheit: "160",
           timeInMinutes: "120",
         },
       },
@@ -105,25 +95,22 @@ export const guidesCollection: Guide[] = [
     variants: [
       {
         name: "Rare",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "58",
-          temperatureFahrenheit: "136",
           timeInMinutes: "90",
         },
       },
       {
         name: "Medium",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "63",
-          temperatureFahrenheit: "145",
           timeInMinutes: "90",
         },
       },
       {
         name: "Well-Done",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "70",
-          temperatureFahrenheit: "158",
           timeInMinutes: "90",
         },
       },
@@ -137,25 +124,22 @@ export const guidesCollection: Guide[] = [
     variants: [
       {
         name: "Rare",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "63",
-          temperatureFahrenheit: "145",
           timeInMinutes: "120",
         },
       },
       {
         name: "Medium",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "66",
-          temperatureFahrenheit: "151",
           timeInMinutes: "120",
         },
       },
       {
         name: "Well-Done",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "72",
-          temperatureFahrenheit: "162",
           timeInMinutes: "120",
         },
       },
@@ -169,25 +153,22 @@ export const guidesCollection: Guide[] = [
     variants: [
       {
         name: "Rare",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "58",
-          temperatureFahrenheit: "136",
           timeInMinutes: "90",
         },
       },
       {
         name: "Medium",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "60",
-          temperatureFahrenheit: "140",
           timeInMinutes: "90",
         },
       },
       {
         name: "Well-Done",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "65",
-          temperatureFahrenheit: "149",
           timeInMinutes: "90",
         },
       },
@@ -201,25 +182,22 @@ export const guidesCollection: Guide[] = [
     variants: [
       {
         name: "Rare",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "58",
-          temperatureFahrenheit: "136",
           timeInMinutes: "60",
         },
       },
       {
         name: "Medium",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "60",
-          temperatureFahrenheit: "140",
           timeInMinutes: "60",
         },
       },
       {
         name: "Well-Done",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "65",
-          temperatureFahrenheit: "149",
           timeInMinutes: "60",
         },
       },
@@ -233,17 +211,15 @@ export const guidesCollection: Guide[] = [
     variants: [
       {
         name: "Tender-Crisp",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "85",
-          temperatureFahrenheit: "185",
           timeInMinutes: "15",
         },
       },
       {
         name: "Tender",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "90",
-          temperatureFahrenheit: "194",
           timeInMinutes: "15",
         },
       },
@@ -257,17 +233,15 @@ export const guidesCollection: Guide[] = [
     variants: [
       {
         name: "Tender-Crisp",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "85",
-          temperatureFahrenheit: "185",
           timeInMinutes: "20",
         },
       },
       {
         name: "Tender",
-        cookerState: {
+        cookParams: {
           temperatureCelsius: "90",
-          temperatureFahrenheit: "194",
           timeInMinutes: "20",
         },
       },

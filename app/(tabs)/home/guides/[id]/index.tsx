@@ -28,7 +28,7 @@ export default function GuidePage({ ...props }) {
           <Text type="subtitle">Cooking variants</Text>
           <View style={{ marginTop: 20, gap: 8 }}>
             {guide.variants.map((variant) => {
-              const { timeInMinutes, temperatureCelsius } = variant.cookerState;
+              const { timeInMinutes, temperatureCelsius } = variant.cookParams;
               return (
                 <Collapsible key={variant.name} title={variant.name}>
                   <View
@@ -36,12 +36,12 @@ export default function GuidePage({ ...props }) {
                   >
                     <View>
                       <Text>
-                        Temperature: <Text style={{ fontWeight: 600 }}>{variant.cookerState.temperatureCelsius}°C</Text>
+                        Temperature: <Text style={{ fontWeight: 600 }}>{variant.cookParams.temperatureCelsius}°C</Text>
                       </Text>
                       <Text>
                         Time:{" "}
                         <Text style={{ fontWeight: 600 }}>
-                          {AnovaService.displayCookingTime(variant.cookerState.timeInMinutes)}
+                          {AnovaService.displayCookingTime(variant.cookParams.timeInMinutes)}
                         </Text>
                       </Text>
                     </View>

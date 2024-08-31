@@ -5,7 +5,7 @@ import { BLEService } from "@/services/BLEService";
  * BLEServiceMock
  */
 export function mockBLEService() {
-  const device = { name: "Anova" } as Device;
+  const device = { id: "device:test:id", name: "Anova" } as Device;
 
   class MockBLEService {
     device = device;
@@ -13,7 +13,7 @@ export function mockBLEService() {
     isDeviceConnected = () => new Promise((res) => res(true));
 
     scanDevices = async (listener: any) => {
-      listener({ name: "Anova" } as Device);
+      listener(device);
     };
 
     connectToDevice = () => new Promise((res) => res(device));

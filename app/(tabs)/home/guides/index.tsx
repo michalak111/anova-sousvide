@@ -5,6 +5,7 @@ import { Link } from "expo-router";
 import { guidesCollection } from "@/app/(tabs)/home/guides/data";
 import { Pressable, ScrollView } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
+import { AnovaService } from "@/services/AnovaService";
 
 export type Guide = {
   id: string;
@@ -12,11 +13,7 @@ export type Guide = {
   category: string[];
   variants: {
     name: string;
-    cookerState: {
-      temperatureCelsius: string;
-      temperatureFahrenheit: string;
-      timeInMinutes: string;
-    };
+    cookParams: AnovaService.CookerParms;
   }[];
 };
 

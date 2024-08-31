@@ -14,8 +14,9 @@ import { FormSetTemperature } from "@/components/Form/FormSetTemperature";
 import { FormSetTimer } from "@/components/Form/FormSetTimer";
 import { CookingPanel } from "@/components/CookingPanel/CookingPanel";
 import { FormModal } from "@/components/Form/FormModal";
-import { useCookingStateStore } from "@/stores/cookingStore";
+import { selectCookingTime, useCookingStateStore } from "@/stores/cookingStore";
 import { router, useLocalSearchParams } from "expo-router";
+import { useHistoryStore } from "@/stores/historyStore";
 
 export default function DeviceTab() {
   const { timeInMinutes: queryTime, temperatureCelsius: queryTemperature } = useLocalSearchParams<{
@@ -28,8 +29,10 @@ export default function DeviceTab() {
   const [characteristic, setCharacteristic] = useState<Characteristic>();
   const commandRef = useRef<{ id: string; key: AnovaService.CommandKey }>();
   const { cookingState: state, update: updateState } = useCookingStateStore();
+  const cookingTime = selectCookingTime(state);
   const [tempModalVal, setTempModalVal] = useState<string | null>("");
   const [timerModalVal, setTimerModalVal] = useState<string | null>("");
+  const saveInHistory = useHistoryStore((state) => state.add);
 
   const deviceConnected = useMemo(() => {
     const connectionEstablished = device && characteristic;
@@ -107,6 +110,8 @@ export default function DeviceTab() {
       await sendCommand("set_timer", AnovaService.commands["set_timer"](Number(time)));
       await sendCommand("start_time", AnovaService.commands["start_time"]());
       await sendCommand("start", AnovaService.commands["start"]());
+      await sendCommand("read_status", AnovaService.commands["read_status"]());
+      saveInHistory({ cookParams: { temperatureCelsius: temperature, timeInMinutes: time } });
     },
     [sendCommand],
   );
@@ -259,6 +264,11 @@ export default function DeviceTab() {
                 await sendCommand("start_time", AnovaService.commands["start_time"]());
                 await sendCommand("start", AnovaService.commands["start"]());
                 await sendCommand("read_status", AnovaService.commands["read_status"]());
+                if (state.targetTemperature && cookingTime) {
+                  saveInHistory({
+                    cookParams: { temperatureCelsius: state.targetTemperature, timeInMinutes: cookingTime },
+                  });
+                }
               }}
               onStopClick={async () => {
                 await sendCommand("stop_time", AnovaService.commands["stop_time"]());
@@ -267,9 +277,7 @@ export default function DeviceTab() {
               }}
               onTempClick={() => setTempModalVal((o) => (o ? null : (state.targetTemperature ?? "0")))}
               onTimerClick={() => {
-                setTimerModalVal((o) =>
-                  o ? null : String(AnovaService.timerToMinutes(state.timer ?? "0") || state.timerSet || 0),
-                );
+                setTimerModalVal((o) => (o ? null : cookingTime));
               }}
             />
           ) : (

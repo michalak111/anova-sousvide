@@ -10,6 +10,10 @@ export namespace AnovaService {
     timer: string | null;
     timerSet?: string;
   };
+  export type CookerParms = {
+    temperatureCelsius: string;
+    timeInMinutes: string;
+  };
 
   export const DEVICE_SERVICE_UUID = "ffe0";
   export const DEVICE_CHARACTERISTIC_UUID = "ffe1";
@@ -49,14 +53,21 @@ export namespace AnovaService {
     return atob(value).replace("\r", "");
   };
 
-  export const storeDeviceId = (id: string) => SecureStore.setItem("STORE_ANOVA_DEVICE_ID", id);
+  export const storeDeviceId = (id: string) => {
+    SecureStore.setItem("STORE_ANOVA_DEVICE_ID", id);
+  };
 
-  export const restoreDeviceId = () => SecureStore.getItem("STORE_ANOVA_DEVICE_ID");
+  export const restoreDeviceId = () => {
+    console.log(SecureStore.getItem("STORE_ANOVA_DEVICE_ID"));
+    return SecureStore.getItem("STORE_ANOVA_DEVICE_ID");
+  };
 
-  export const forgetDeviceId = () => SecureStore.deleteItemAsync("STORE_ANOVA_DEVICE_ID");
+  export const forgetDeviceId = () => {
+    SecureStore.deleteItemAsync("STORE_ANOVA_DEVICE_ID");
+  };
 
   export const timerToMinutes = (timer: string) => {
-    const [time] = timer.split(" ");
+    const [time] = String(timer).split(" ");
     return Number(time);
   };
 
