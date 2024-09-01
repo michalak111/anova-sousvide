@@ -1,5 +1,5 @@
 import { render, screen, userEvent } from "@testing-library/react-native";
-import HistoryPage from "@/app/(tabs)/home/history/index";
+import HistoryPage from "@/app/(tabs)/home/history";
 import { useHistoryStore } from "@/stores/historyStore";
 import { router } from "expo-router";
 

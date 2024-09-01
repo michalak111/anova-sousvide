@@ -2,20 +2,20 @@ import { Text } from "@/components/Text";
 import React from "react";
 import { Link } from "expo-router";
 import { Guide, guidesCollection } from "@/app/(tabs)/home/guides/data";
-import { FlatList, Pressable, ScrollView } from "react-native";
+import { FlatList, Pressable, SafeAreaView } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default function GuidesListPage() {
   return (
-    <ScrollView>
+    <SafeAreaView>
       <FlatList
         data={guidesCollection}
         renderItem={(info) => <Item data={info.item} />}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingHorizontal: 16, gap: 8, marginTop: 16 }}
       />
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 

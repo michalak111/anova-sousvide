@@ -4,14 +4,12 @@ import React from "react";
 import { TabBarIcon } from "@/components/Navigation/TabBarIcon";
 import { Colors } from "@/constants/Theme";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { CookingStatusBar } from "@/components/CookingStatusBar";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
     <>
-      <CookingStatusBar />
       <Tabs
         initialRouteName="home"
         screenOptions={{
