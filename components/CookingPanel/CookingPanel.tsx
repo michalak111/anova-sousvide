@@ -36,11 +36,11 @@ export const CookingPanel = ({ state, onStartClick, onStopClick, onTimerClick, o
           </CookingPannelButton>
           {["stop", "stopped", "low water"].includes(state.status ?? "") ? (
             <CookingPannelButton size={80} onPress={onStartClick} accessibilityLabel="Start">
-              <FontAwesome5 name="play" size={24} color="black" data-testid="start-icon" />
+              <FontAwesome5 name="play" size={24} color="black" />
             </CookingPannelButton>
           ) : (
             <CookingPannelButton size={80} onPress={onStopClick} accessibilityLabel="Stop">
-              <FontAwesome5 name="stop" size={24} color="black" data-testid="stop-icon" />
+              <FontAwesome5 name="stop" size={24} color="black" />
             </CookingPannelButton>
           )}
           <CookingPannelButton onPress={onTimerClick} accessibilityLabel="Set time">

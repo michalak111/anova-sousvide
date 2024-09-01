@@ -3,6 +3,8 @@ import { CookingPanel } from "@/components/CookingPanel/CookingPanel";
 import { ComponentProps } from "react";
 import { AnovaService } from "@/services/AnovaService";
 
+jest.mock("@expo/vector-icons");
+
 const props = (): ComponentProps<typeof CookingPanel> => ({
   state: {},
   onStopClick: jest.fn(),
