@@ -3,12 +3,13 @@ import { Href, Link } from "expo-router";
 import { View } from "@/components/View";
 import { Text } from "@/components/Text";
 import { Pressable } from "react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default function IndexHome() {
   return (
     <View style={{ padding: 16, gap: 16 }}>
-      <Box href={"/home/guides"} title={"Guides"} />
-      <Box href={"/home/history"} title={"History"} />
+      <Card href={"/home/guides"} title={"Guides"} />
+      <Card href={"/home/history"} title={"History"} />
     </View>
   );
 }
@@ -18,7 +19,8 @@ type BoxProps<T extends string | object> = {
   title: string;
 };
 
-const Box = <T extends string | object>({ href, title }: BoxProps<T>) => {
+const Card = <T extends string | object>({ href, title }: BoxProps<T>) => {
+  const border = useThemeColor({}, "border");
   return (
     <Link href={href} style={{ display: "flex", width: "100%" }} asChild>
       <Pressable>
@@ -31,6 +33,7 @@ const Box = <T extends string | object>({ href, title }: BoxProps<T>) => {
             alignItems: "center",
             borderRadius: 5,
             elevation: 2,
+            borderColor: border,
           }}
         >
           <Text type="subtitle">{title}</Text>

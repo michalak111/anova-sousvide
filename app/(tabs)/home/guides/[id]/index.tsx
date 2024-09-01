@@ -2,7 +2,7 @@ import { Text } from "@/components/Text";
 import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { View } from "@/components/View";
 import { guidesCollection } from "@/app/(tabs)/home/guides/data";
-import { ScrollView } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { Collapsible } from "@/components/Collapsible";
 import { Button } from "@/components/Button";
 import { AnovaService } from "@/services/AnovaService";
@@ -24,29 +24,27 @@ export default function GuidePage({ ...props }) {
     <>
       <Stack.Screen options={{ title: guide.title }} />
       <ScrollView>
-        <View style={{ padding: 16 }}>
+        <View style={styles.conainer}>
           <Text type="subtitle">Cooking variants</Text>
-          <View style={{ marginTop: 20, gap: 8 }}>
+          <View style={styles.listContainer}>
             {guide.variants.map((variant) => {
               const { timeInMinutes, temperatureCelsius } = variant.cookParams;
               return (
                 <Collapsible key={variant.name} title={variant.name}>
-                  <View
-                    style={{ gap: 6, flexDirection: "row", flexWrap: "wrap", alignItems: "center", marginBottom: 20 }}
-                  >
+                  <View style={styles.content}>
                     <View>
                       <Text>
-                        Temperature: <Text style={{ fontWeight: 600 }}>{variant.cookParams.temperatureCelsius}°C</Text>
+                        Temperature: <Text style={styles.text}>{variant.cookParams.temperatureCelsius}°C</Text>
                       </Text>
                       <Text>
                         Time:{" "}
-                        <Text style={{ fontWeight: 600 }}>
+                        <Text style={styles.text}>
                           {AnovaService.displayCookingTime(variant.cookParams.timeInMinutes)}
                         </Text>
                       </Text>
                     </View>
                     <Link href={{ pathname: `/device`, params: { timeInMinutes, temperatureCelsius } }} asChild>
-                      <Button style={{ height: 38, width: 120, flex: 0, marginLeft: "auto" }}>Cook it</Button>
+                      <Button style={styles.button}>Cook it</Button>
                     </Link>
                   </View>
                 </Collapsible>
@@ -58,3 +56,29 @@ export default function GuidePage({ ...props }) {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  conainer: {
+    padding: 16,
+  },
+  listContainer: {
+    marginTop: 20,
+    gap: 8,
+  },
+  content: {
+    gap: 6,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  text: {
+    fontWeight: 600,
+  },
+  button: {
+    height: 38,
+    width: 120,
+    flex: 0,
+    marginLeft: "auto",
+  },
+});

@@ -6,9 +6,6 @@ import { Text } from "@/components/Text";
 import { Keyboard } from "react-native";
 import { AnovaService } from "@/services/AnovaService";
 
-// TODO - implement input mask, so user types time in hh:mm format
-// TODO - improve validaton
-
 type Props<V = string> = {
   initialValue?: V;
   onSave: (value: V) => void;

@@ -19,24 +19,16 @@ This is a React Native mobile app designed to control the Anova Sous Vide Precis
 2. Start the app
 
    ```bash
-    npx expo run:(android|ios)
+    npm run:(android|ios)
    ```
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Because application uses native features such as BLE it does not run on ExpoGo. It only runs on native devices.
 
 ## Environment varialbes
-
 
 ```
 .env.local
 
-# Mocks BleService.ts
+# Mocks BLEService.ts
 EXPO_PUBLIC_BLE_MOCK_ENABLED=true
 ```

@@ -6,7 +6,11 @@ import { Text } from "@/components/Text";
 import { View } from "@/components/View";
 import { Colors } from "@/constants/Theme";
 
-export function Collapsible({ children, title }: PropsWithChildren & { title: string }) {
+type Props = PropsWithChildren & {
+  title: string;
+};
+
+export const Collapsible = ({ children, title }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const theme = useColorScheme() ?? "light";
 
@@ -23,7 +27,7 @@ export function Collapsible({ children, title }: PropsWithChildren & { title: st
       {isOpen && <View style={styles.content}>{children}</View>}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   heading: {

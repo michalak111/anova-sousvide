@@ -2,13 +2,13 @@ import { Text as RNText, type TextProps, StyleSheet } from "react-native";
 
 import { useThemeColor } from "@/hooks/useThemeColor";
 
-export type ThemedTextProps = TextProps & {
+export type Props = TextProps & {
   lightColor?: string;
   darkColor?: string;
   type?: "default" | "title" | "defaultSemiBold" | "subtitle" | "link";
 };
 
-export function Text({ style, lightColor, darkColor, type = "default", ...rest }: ThemedTextProps) {
+export const Text = ({ style, lightColor, darkColor, type = "default", ...rest }: Props) => {
   const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
 
   return (
@@ -25,7 +25,7 @@ export function Text({ style, lightColor, darkColor, type = "default", ...rest }
       {...rest}
     />
   );
-}
+};
 
 const styles = StyleSheet.create({
   default: {

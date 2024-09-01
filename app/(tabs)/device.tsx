@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { ActivityIndicator, StyleSheet } from "react-native";
 
-import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { ParallaxScrollView } from "@/components/ParallaxScrollView";
 import { Text } from "@/components/Text";
 import { View } from "@/components/View";
 import { BLEService } from "@/services/BLEService";

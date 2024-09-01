@@ -2,7 +2,9 @@ import React, { ComponentProps } from "react";
 import { StyleProp, ViewStyle, StyleSheet, TextInput } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
-type Props = ComponentProps<typeof TextInput> & { style?: StyleProp<ViewStyle> };
+type Props = ComponentProps<typeof TextInput> & {
+  style?: StyleProp<ViewStyle>;
+};
 
 export const Input = ({ style, ...rest }: Props) => {
   const color = useThemeColor({}, "text");

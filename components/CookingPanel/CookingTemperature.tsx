@@ -4,7 +4,10 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
-type Props = { current: string; target: string };
+type Props = {
+  current: string;
+  target: string;
+};
 
 export const CookingTemperature = ({ current, target }: Props) => {
   return (

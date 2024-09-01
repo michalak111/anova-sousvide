@@ -5,8 +5,6 @@ import { useEffect, useState } from "react";
 import { Text } from "@/components/Text";
 import { Keyboard } from "react-native";
 
-// TODO - improve validaton
-
 type Props<V = string> = {
   initialValue?: V;
   onSave: (value: V) => void;

@@ -1,4 +1,14 @@
-import { Guide } from "@/app/(tabs)/home/guides/index";
+import { AnovaService } from "@/services/AnovaService";
+
+export type Guide = {
+  id: string;
+  title: string;
+  category: string[];
+  variants: {
+    name: string;
+    cookParams: AnovaService.CookerParms;
+  }[];
+};
 
 export const guidesCollection: Guide[] = [
   // Beef - Tenderloin

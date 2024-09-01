@@ -2,7 +2,7 @@ import { AnovaService } from "@/services/AnovaService";
 import { CookingTemperature } from "@/components/CookingPanel/CookingTemperature";
 import { CookingTimer } from "@/components/CookingPanel/CookingTimer";
 import { View } from "@/components/View";
-import { ButtonIcon } from "@/components/ButtonIcon";
+import { CookingPannelButton } from "@/components/CookingPanel/CookingPannelButton";
 import { FontAwesome5, FontAwesome6 } from "@expo/vector-icons";
 import React from "react";
 
@@ -31,21 +31,21 @@ export const CookingPanel = ({ state, onStartClick, onStopClick, onTimerClick, o
             justifyContent: "center",
           }}
         >
-          <ButtonIcon onPress={onTempClick}>
+          <CookingPannelButton onPress={onTempClick}>
             <FontAwesome6 name="temperature-half" size={24} color="black" />
-          </ButtonIcon>
+          </CookingPannelButton>
           {["stop", "stopped", "low water"].includes(state.status ?? "") ? (
-            <ButtonIcon size={80} onPress={onStartClick}>
+            <CookingPannelButton size={80} onPress={onStartClick}>
               <FontAwesome5 name="play" size={24} color="black" />
-            </ButtonIcon>
+            </CookingPannelButton>
           ) : (
-            <ButtonIcon size={80} onPress={onStopClick}>
+            <CookingPannelButton size={80} onPress={onStopClick}>
               <FontAwesome5 name="stop" size={24} color="black" />
-            </ButtonIcon>
+            </CookingPannelButton>
           )}
-          <ButtonIcon onPress={onTimerClick}>
+          <CookingPannelButton onPress={onTimerClick}>
             <FontAwesome6 name="clock" size={24} color="black" />
-          </ButtonIcon>
+          </CookingPannelButton>
         </View>
       ) : null}
     </>
