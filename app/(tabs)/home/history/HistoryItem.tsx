@@ -23,7 +23,7 @@ export const HistoryItem = ({ data, remove }: Props) => {
   } = data;
 
   return (
-    <View style={[styles.container, { borderColor: border }]}>
+    <View style={[styles.container, { borderColor: border }]} testID="HistoryItem">
       <Text>
         <Text style={[styles.dateText]}>Cooked: </Text>
         <Text style={[styles.dateText, { color: "gray" }]}>
@@ -42,10 +42,11 @@ export const HistoryItem = ({ data, remove }: Props) => {
         <View style={[styles.actions]}>
           <ButtonIcon
             onPress={() => router.navigate({ pathname: `/device`, params: { timeInMinutes, temperatureCelsius } })}
+            testID="cook-history-item"
           >
             <MaterialCommunityIcons name="pot-steam" size={24} color="black" />
           </ButtonIcon>
-          <ButtonIcon background={"#cc0000"} onPress={() => remove(id)}>
+          <ButtonIcon background={"#cc0000"} onPress={() => remove(id)} testID="remove-history-item">
             <FontAwesome name="trash" size={24} color="black" />
           </ButtonIcon>
         </View>
