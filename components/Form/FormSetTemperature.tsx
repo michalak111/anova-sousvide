@@ -32,6 +32,7 @@ export const FormSetTemperature = ({ initialValue, onSave }: Props) => {
     <View style={{ gap: 10 }}>
       <Text type="defaultSemiBold">Cooking temperature</Text>
       <Input
+        testID="input"
         value={value}
         placeholder="Temperature in Celcius"
         inputMode={"decimal"}
@@ -43,6 +44,7 @@ export const FormSetTemperature = ({ initialValue, onSave }: Props) => {
       />
 
       <Button
+        accessibilityRole="button"
         onPress={async () => {
           Keyboard.dismiss();
           onSave(validate(value));

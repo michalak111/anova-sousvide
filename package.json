@@ -12,7 +12,10 @@
     "lint": "expo lint"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest-setup.ts"
+    ]
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",

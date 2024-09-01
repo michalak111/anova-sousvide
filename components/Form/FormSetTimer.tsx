@@ -34,6 +34,7 @@ export const FormSetTimer = ({ initialValue, onSave }: Props) => {
       <Text type="defaultSemiBold">Cooking time</Text>
       <View style={{ flexDirection: "row" }}>
         <Input
+          testID="input"
           value={value}
           inputMode={"numeric"}
           maxLength={4}
@@ -48,6 +49,7 @@ export const FormSetTimer = ({ initialValue, onSave }: Props) => {
       </View>
       <View>
         <Button
+          accessibilityRole="button"
           onPress={() => {
             Keyboard.dismiss();
             onSave(validate(value));
