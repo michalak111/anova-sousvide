@@ -113,7 +113,7 @@ export default function DeviceTab() {
       await sendCommand("read_status", AnovaService.commands["read_status"]());
       saveInHistory({ cookParams: { temperatureCelsius: temperature, timeInMinutes: time } });
     },
-    [sendCommand],
+    [sendCommand, saveInHistory],
   );
 
   useEffect(

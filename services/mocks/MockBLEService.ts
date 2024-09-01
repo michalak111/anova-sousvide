@@ -71,6 +71,7 @@ export function mockBLEService() {
 
           if (request.startsWith("set timer")) {
             // attention: this works differently with anova, set value is only returned after timer started
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const [_, status] = this.responseMap["read timer"].split(" ");
             this.responseMap["read timer"] = `${request.replace("set timer ", "")} ${status}`;
           }

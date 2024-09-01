@@ -20,5 +20,7 @@ export const useCookingStateStore = () => {
   return { update, cookingState };
 };
 
-export const selectCookingTime = ({ timer, timerSet }: Pick<State, "timer" | "timerSet">) =>
-  String(timer ? AnovaService.timerToMinutes(timer) : timerSet || 0);
+export const selectCookingTime = ({ timer, timerSet }: Pick<State, "timer" | "timerSet">) => {
+  const timerValue = timer ? AnovaService.timerToMinutes(timer) : 0;
+  return String(timerValue || timerSet || 0);
+};

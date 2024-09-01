@@ -31,19 +31,19 @@ export const CookingPanel = ({ state, onStartClick, onStopClick, onTimerClick, o
             justifyContent: "center",
           }}
         >
-          <CookingPannelButton onPress={onTempClick}>
+          <CookingPannelButton onPress={onTempClick} accessibilityLabel="Set temperature">
             <FontAwesome6 name="temperature-half" size={24} color="black" />
           </CookingPannelButton>
           {["stop", "stopped", "low water"].includes(state.status ?? "") ? (
-            <CookingPannelButton size={80} onPress={onStartClick}>
-              <FontAwesome5 name="play" size={24} color="black" />
+            <CookingPannelButton size={80} onPress={onStartClick} accessibilityLabel="Start">
+              <FontAwesome5 name="play" size={24} color="black" data-testid="start-icon" />
             </CookingPannelButton>
           ) : (
-            <CookingPannelButton size={80} onPress={onStopClick}>
-              <FontAwesome5 name="stop" size={24} color="black" />
+            <CookingPannelButton size={80} onPress={onStopClick} accessibilityLabel="Stop">
+              <FontAwesome5 name="stop" size={24} color="black" data-testid="stop-icon" />
             </CookingPannelButton>
           )}
-          <CookingPannelButton onPress={onTimerClick}>
+          <CookingPannelButton onPress={onTimerClick} accessibilityLabel="Set time">
             <FontAwesome6 name="clock" size={24} color="black" />
           </CookingPannelButton>
         </View>
