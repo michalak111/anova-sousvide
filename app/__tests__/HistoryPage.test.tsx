@@ -8,7 +8,7 @@ describe("History", () => {
     jest.restoreAllMocks();
   });
 
-  it("displays history items", () => {
+  it("displays list items", () => {
     useHistoryStore.setState({
       history: [
         { id: "1", time: 1, cookParams: { timeInMinutes: "0", temperatureCelsius: "0" } },
@@ -49,7 +49,7 @@ describe("History", () => {
     expect(screen.getAllByTestId("HistoryItem")).toHaveLength(1);
   });
 
-  it("should remove item", async () => {
+  it("should navigate to device screen with cooking params", async () => {
     const user = userEvent.setup();
     const routerSpy = jest.spyOn(router, "navigate").mockImplementationOnce(() => {});
     useHistoryStore.setState({
