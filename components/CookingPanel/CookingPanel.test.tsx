@@ -69,7 +69,7 @@ describe("CookingPanel", () => {
     ["low water", "start"],
     ["start", "stop"],
     ["running", "stop"],
-  ])("displays correct button depending on status", (status, button) => {
+  ])("displays correct button for status = %s", (status, button) => {
     render(<CookingPanel {...props()} state={{ status }} />);
     expect(screen.getByLabelText(new RegExp(button, "i"))).toBeTruthy();
   });

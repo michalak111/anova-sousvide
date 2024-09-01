@@ -16,5 +16,5 @@ jobs:
         node-version: '20'
         cache: 'npm'
     - run: npm ci
-    - run: npx jest --silent
+    - run: npx jest --silent --verbose
     - run: npm run lint
