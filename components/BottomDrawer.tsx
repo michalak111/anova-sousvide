@@ -2,7 +2,7 @@ import Animated, { useAnimatedKeyboard, useAnimatedStyle, useSharedValue, withSp
 import { View } from "@/components/View";
 import React, { useEffect, useRef } from "react";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { Dimensions, StyleSheet, useColorScheme } from "react-native";
+import { Dimensions, Platform, StyleSheet, useColorScheme } from "react-native";
 
 type Props = {
   opened: boolean;
@@ -30,7 +30,10 @@ export const BottomDrawer = ({ opened, children }: Props) => {
 
   useEffect(() => {
     if (opened) {
-      transformY.value = screenHeight - tabBarHeight - contentHeight.current;
+      transformY.value = Platform.select({
+        ios: screenHeight - contentHeight.current,
+        android: screenHeight - tabBarHeight - contentHeight.current,
+      }) as number;
     } else {
       transformY.value = screenHeight;
     }
