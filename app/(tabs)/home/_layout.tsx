@@ -2,6 +2,7 @@ import React from "react";
 import { Stack } from "expo-router";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { CookingStatusBar } from "@/components/CookingStatusBar";
+import { AppVersion } from "@/components/AppVersion";
 
 export default function HomeLayout() {
   const backgroundColor = useThemeColor({}, "background");
@@ -20,6 +21,7 @@ export default function HomeLayout() {
         <Stack.Screen name="guides/[id]/index" />
         <Stack.Screen name="history/index" options={{ title: "Cooking history" }} />
       </Stack>
+      <AppVersion />
     </>
   );
 }
