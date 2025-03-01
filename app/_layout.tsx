@@ -45,7 +45,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
-      <AcceptUpdateDrawer opened={isUpdateAvailable} onAccept={acceptUpdate} onDecline={declineUpdate} />
+      <AcceptUpdateDrawer opened={!!isUpdateAvailable} onAccept={acceptUpdate} onDecline={declineUpdate} />
     </ThemeProvider>
   );
 }

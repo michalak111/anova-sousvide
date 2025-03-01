@@ -10,7 +10,7 @@
     <integer>0</integer>
     <key>EXUpdatesRequestHeaders</key>
     <dict>
-      <key>main</key>
+      <key>expo-channel-name</key>
       <string>main</string>
     </dict>
     <key>EXUpdatesRuntimeVersion</key>

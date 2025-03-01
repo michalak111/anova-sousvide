@@ -14,8 +14,10 @@ export const AcceptUpdateDrawer = ({
 }) => {
   return (
     <BottomDrawer opened={opened}>
-      <View style={{ height: 180 }}>
-        <Text style={{ width: "100%", flex: 0, marginBottom: 16 }}>Update available, apply it now?</Text>
+      <View style={{ height: 220 }}>
+        <Text style={{ width: "100%", flex: 0, marginBottom: 16, textAlign: "center" }}>
+          Update available, apply it now?
+        </Text>
         <Button style={{ width: "100%", flex: 0, marginBottom: 16 }} onPress={onAccept}>
           Accept
         </Button>

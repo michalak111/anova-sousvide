@@ -53,7 +53,7 @@
     "updates": {
       "url": "https://u.expo.dev/858f2d77-4266-4f96-bdeb-fca463c5696e",
       "requestHeaders": {
-        "main": "main"
+        "expo-channel-name": "main"
       }
     }
   }
