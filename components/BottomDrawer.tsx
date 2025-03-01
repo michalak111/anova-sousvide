@@ -1,18 +1,17 @@
 import Animated, { useAnimatedKeyboard, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { View } from "@/components/View";
 import React, { useEffect, useRef } from "react";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { Dimensions, Platform, StyleSheet, useColorScheme } from "react-native";
 
 type Props = {
   opened: boolean;
   children: React.ReactNode;
+  tabBarHeight?: number;
 };
 
-export const BottomDrawer = ({ opened, children }: Props) => {
+export const BottomDrawer = ({ opened, children, tabBarHeight = 0 }: Props) => {
   const theme = useColorScheme();
   const screenHeight = Dimensions.get("screen").height;
-  const tabBarHeight = useBottomTabBarHeight();
   const minHeight = 200;
   const contentHeight = useRef<number>(minHeight);
   const transformY = useSharedValue<number>(screenHeight);
